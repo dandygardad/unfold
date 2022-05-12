@@ -30,6 +30,10 @@ if not cam1.isnumeric() & cam2.isnumeric():
 vid1 = cv2.VideoCapture(int(cam1), cv2.CAP_DSHOW)
 vid2 = cv2.VideoCapture(int(cam2), cv2.CAP_DSHOW)
 
+# Error if webcam is can't be opened
+if not vid1.isOpened() & vid2.isOpened():
+    raise IOError("Cannot open webcam")
+
 # Show original dimension
 print("\nVideo 1 original dimension: " + str(vid1.get(cv2.CAP_PROP_FRAME_WIDTH)) + ' ' + str(vid1.get(cv2.CAP_PROP_FRAME_HEIGHT)))
 print("\nVideo 2 original dimension: " + str(vid2.get(cv2.CAP_PROP_FRAME_WIDTH)) + ' ' + str(vid2.get(cv2.CAP_PROP_FRAME_HEIGHT)))
@@ -39,9 +43,6 @@ print("\nResized to: " + str(dim))
 
 print("\n\nPress 's' to take a picture left and right\nPress 'q' to quit")
 
-# Error if webcam is can't be opened
-if not vid1.isOpened() & vid2.isOpened():
-    raise IOError("Cannot open webcam")
 
 
 while True:
