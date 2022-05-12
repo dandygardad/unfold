@@ -1,10 +1,12 @@
-# Take chessboard picture for Calibration
-# ``unfold`` by Dandy Garda
+# Take chessboard pictures for Calibration
+# for ``unfold`` by Dandy Garda
 
 # Import OpenCV, os and time
 import cv2
 import os
 import time
+
+print("\n== TAKE CHESSBOARD PICTURES FOR CALIBRATION ==\n``unfold`` by dandy garda\n")
 
 # Input Camera
 cam1 = input("Masukkan nomor source left camera (1/2/3/..): ")
