@@ -39,6 +39,7 @@ except:
 
 # RUN YOLOv5 TO OpenCV
 print("\n\n=== PUT YOLOv5 INTO STEREO CAMERA ===")
+print("\n\n=== APPLY DISTANCE MEASUREMENT ===")
 stereoMapL_x, stereoMapL_y, stereoMapR_x, stereoMapR_y = stereoCalibrated()
 while True:
     try:
