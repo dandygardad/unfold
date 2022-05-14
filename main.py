@@ -8,7 +8,7 @@ import numpy as np
 
 from helper.general import unfoldHeader, errorMessage
 from helper.load import resizedStereoCamera, stereoCamera, destroySession, stereoCalibrated
-from helper.distance import convertBbox
+from helper.distance import convertBbox, stereoscopicMeasurementV1
 
 
 
@@ -75,15 +75,29 @@ while True:
 
     # Extract bbox (x1, y1, x2, y2) to (x, y, w, h)
     try:
-        # label = resultLR.pandas().xyxy[0] # (Left Camera)
-        label = resultLR.pandas().xyxy[1]  # (Right Camera)
-        x, y, w, h = convertBbox(label.iloc[0]['xmin'], label.iloc[0]['ymin'], label.iloc[0]['xmax'], label.iloc[0]['ymax'])
-        print(label)
-        print("(" + label.iloc[0]['name'] + ')')
-        print("x = " + str(x))
-        print("y = " + str(y))
-        print("w = " + str(w))
-        print("h = " + str(h))
+        labelL = resultLR.pandas().xyxy[0] # (Left Camera)
+        labelR = resultLR.pandas().xyxy[1]  # (Right Camera)
+        xl, yl, wl, hl = convertBbox(labelL.iloc[0]['xmin'], labelL.iloc[0]['ymin'], labelL.iloc[0]['xmax'], labelL.iloc[0]['ymax'])
+        xr, yr, wr, hr = convertBbox(labelR.iloc[0]['xmin'], labelR.iloc[0]['ymin'], labelR.iloc[0]['xmax'], labelR.iloc[0]['ymax'])
+        
+        print("\n Detection on Left Camera: ")
+        print(labelL)
+        print("\n Detection on Right Camera: ")
+        print(labelR)
+        
+        # At this time, only one class can be measured
+        if labelL.iloc[0]['name'] == labelR.iloc[0]['name']:
+            # print("(" + label.iloc[0]['name'] + ')')
+            print("x1 for left camera = " + str(xl))
+            print("x2 for right camera = " + str(xr))
+
+            # Result from Distance Measurement
+            # CHANGE THIS IF THERE IS CHANGES ON BASELINE AND FOV
+            stereoscopicMeasurementV1(xl, xr, dim, 14, 0)
+        else:
+            print("Can't measure the distance!")    
+
+        
     except IndexError:
         print("No detection!")
         continue
