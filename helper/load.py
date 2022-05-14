@@ -1,3 +1,6 @@
+# Functions to help stereo camera running and calibrated
+# for ``unfold`` by dandy garda
+
 import cv2
 import os
 from helper.general import originalDimCheck, errorMessage
