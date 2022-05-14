@@ -4,7 +4,6 @@
 # Import libraries
 import cv2
 import torch
-import numpy as np
 
 from helper.general import unfoldHeader, errorMessage
 from helper.load import resizedStereoCamera, stereoCamera, destroySession, stereoCalibrated

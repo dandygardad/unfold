@@ -9,7 +9,8 @@ A Python project for **measuring distance between two ships** with **Stereo Came
 ## Features
 - Camera Calibration & Rectify
 - Detect with Stereo YOLOv5 (Mini-version)
-- Distance Measurement
+- Distance Measurement *\*not yet tested*
+
 ---
 
 🌸 from **Dandy Garda**
