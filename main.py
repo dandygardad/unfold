@@ -2,6 +2,7 @@
 # for ``unfold`` by dandy garda
 
 # Import libraries
+import pandas as pd
 import cv2
 import torch
 
@@ -27,6 +28,12 @@ if not inputL.isnumeric() & inputR.isnumeric():
 dim = (640, 480)
 camL, camR = stereoCamera(inputL, inputR, dim)
 
+# classes = list()
+# distance = list()
+# x = list()
+# y = list()
+# w = list()
+# h = list()
 
 
 # LOAD MODEL (YOLOv5)
@@ -61,45 +68,50 @@ while True:
 
         # Key to exit
         if key == ord('q'):
-            print("\nExited!")
+            print("\n\nExited!")
             break
-        
-        print()
+
+        # Print into command prompt
+        print("\n--------------------------------------------\n")
+        resultLR.print()
+
+        # Extract bbox (x1, y1, x2, y2) to (x, y, w, h)
+        try:
+            labelL = resultLR.pandas().xyxy[0] # (Left Camera)
+            labelR = resultLR.pandas().xyxy[1]  # (Right Camera)
+            xl, yl, wl, hl = convertBbox(labelL.iloc[0]['xmin'], labelL.iloc[0]['ymin'], labelL.iloc[0]['xmax'], labelL.iloc[0]['ymax'])
+            xr, yr, wr, hr = convertBbox(labelR.iloc[0]['xmin'], labelR.iloc[0]['ymin'], labelR.iloc[0]['xmax'], labelR.iloc[0]['ymax'])
+            
+            print("\n\nDetection on Left Camera: ")
+            print(labelL)
+            print("\nDetection on Right Camera: ")
+            print(labelR)
+            
+            # At this time, only one class with highest conf can be measured
+            if labelL.iloc[0]['name'] == labelR.iloc[0]['name']:
+                # print("(" + label.iloc[0]['name'] + ')')
+                print("\n\nx1 for left camera = " + str(xl))
+                print("x2 for right camera = " + str(xr))
+
+                # class, distance, x, y, w, h
+                data = {
+                    'class': [labelL.iloc[0]['name']],
+                    'distance': [0]
+                }
+                print("\nDistance Measurement:")
+                print(pd.DataFrame(data))
+                
+                # Result from Distance Measurement
+                # CHANGE THIS IF THERE IS CHANGES ON BASELINE AND FOV
+                # stereoscopicMeasurementV1(xl, xr, dim, 14, 0)
+            else:
+                print("Can't measure the distance!")    
+        except IndexError:
+            print("No detection!")
+            continue
     except KeyboardInterrupt:
-        print("\nExited!")
+        print("\n\nExited!")
         break
-
-    # Print into command prompt
-    resultLR.print()
-
-    # Extract bbox (x1, y1, x2, y2) to (x, y, w, h)
-    try:
-        labelL = resultLR.pandas().xyxy[0] # (Left Camera)
-        labelR = resultLR.pandas().xyxy[1]  # (Right Camera)
-        xl, yl, wl, hl = convertBbox(labelL.iloc[0]['xmin'], labelL.iloc[0]['ymin'], labelL.iloc[0]['xmax'], labelL.iloc[0]['ymax'])
-        xr, yr, wr, hr = convertBbox(labelR.iloc[0]['xmin'], labelR.iloc[0]['ymin'], labelR.iloc[0]['xmax'], labelR.iloc[0]['ymax'])
-        
-        print("\n Detection on Left Camera: ")
-        print(labelL)
-        print("\n Detection on Right Camera: ")
-        print(labelR)
-        
-        # At this time, only one class can be measured
-        if labelL.iloc[0]['name'] == labelR.iloc[0]['name']:
-            # print("(" + label.iloc[0]['name'] + ')')
-            print("x1 for left camera = " + str(xl))
-            print("x2 for right camera = " + str(xr))
-
-            # Result from Distance Measurement
-            # CHANGE THIS IF THERE IS CHANGES ON BASELINE AND FOV
-            stereoscopicMeasurementV1(xl, xr, dim, 14, 0)
-        else:
-            print("Can't measure the distance!")    
-
-        
-    except IndexError:
-        print("No detection!")
-        continue
 
 # Destroy Session
 destroySession(camL, camR)

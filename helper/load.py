@@ -63,4 +63,4 @@ def destroySession(L, R):
     L.release()
     R.release()
     cv2.destroyAllWindows()
-    print("\n\nThank you!\n:)")
+    print("\nThank you!\n:)")

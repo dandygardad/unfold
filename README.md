@@ -2,9 +2,18 @@
 A Python project for **measuring distance between two ships** with **Stereo Camera**.
 
 ## Requirements
-- Python 3.10 or newer
+- Python 3.8 or newer
+- PyTorch 1.7 or newer
 - OpenCV
-- PyTorch
+
+## Install
+```
+git clone https://github.com/dandygardad/unfold.git
+
+cd unfold
+
+pip install -r requirements.txt
+```
 
 ## Features
 - Camera Calibration & Rectify
