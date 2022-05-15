@@ -10,6 +10,10 @@ def convertBbox(x1, y1, x2, y2):
     width = (x2 - x1)
     height = (y2 - y1)
 
+    # This code came from Nicolai Nielsen for finding midpoint of bbox
+    # xc = (x + width)/2
+    # yc = (y + height)/2
+
     return xc, yc, width, height
 
 
@@ -24,10 +28,10 @@ b = baseline (actual distance between two cameras) (m)
 fov = field of view/lens view angle (two cameras must be of the same model)
 """
 def stereoscopicMeasurementV1(leftX, rightX, width, b, fov):
-    baselineWidth = b * width
-    disparity = leftX - rightX
-    fieldOfView = math.tan(fov / 2)
+    baselineWidth = float(b) * float(width)
+    disparity = float(leftX) - float(rightX)
+    fieldOfView = float(math.tan(fov / 2))
 
-    distance = baselineWidth / (2 * fieldOfView * disparity)
+    distance = baselineWidth / ((2 * fieldOfView) * disparity)
 
-    return distance
+    return round(distance)

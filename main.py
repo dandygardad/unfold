@@ -57,7 +57,7 @@ while True:
         # Inference Settings
         # EDIT THIS FOR DETECTION SETTINGS
         model.conf = 0.4
-        model.classes = [0]
+        model.classes = [67]
 
         # Load frame to model
         resultLR = model([resized1[:, :, ::-1], resized2[:, :, ::-1]])
@@ -93,17 +93,18 @@ while True:
                 print("\n\nx1 for left camera = " + str(xl))
                 print("x2 for right camera = " + str(xr))
 
-                # class, distance, x, y, w, h
+                # Result from Distance Measurement
+                # CHANGE THIS IF THERE IS CHANGES ON BASELINE AND FOV
+                distance = stereoscopicMeasurementV1(xl, xr, dim[0], 0.7, 170)
+                
                 data = {
                     'class': [labelL.iloc[0]['name']],
-                    'distance': [0]
+                    'distance': [distance]
                 }
+
                 print("\nDistance Measurement:")
                 print(pd.DataFrame(data))
                 
-                # Result from Distance Measurement
-                # CHANGE THIS IF THERE IS CHANGES ON BASELINE AND FOV
-                # stereoscopicMeasurementV1(xl, xr, dim, 14, 0)
             else:
                 print("Can't measure the distance!")    
         except IndexError:

@@ -5,6 +5,7 @@ A Python project for **measuring distance between two ships** with **Stereo Came
 - Python 3.8 or newer
 - PyTorch 1.7 or newer
 - OpenCV
+- Two cameras must be of the same model
 
 ## Install
 ```
