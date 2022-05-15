@@ -1,3 +1,6 @@
+# Functions to help stereo camera running and calibrated
+# for ``unfold`` by dandy garda
+
 import cv2
 import os
 from helper.general import originalDimCheck, errorMessage
@@ -60,4 +63,4 @@ def destroySession(L, R):
     L.release()
     R.release()
     cv2.destroyAllWindows()
-    print("\n\nThank you!\n:)")
+    print("\nThank you!\n:)")
