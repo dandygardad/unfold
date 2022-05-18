@@ -62,38 +62,32 @@ while True:
         # Load frame to model
         resultLR = model([resized1[:, :, ::-1], resized2[:, :, ::-1]])
 
-        # Extract bbox (x1, y1, x2, y2) to (x, y, w, h)
+        labelL = resultLR.pandas().xyxy[0] # (Left Camera)
+        labelR = resultLR.pandas().xyxy[1]  # (Right Camera)
 
         # Make rectangle manual by bbox
-        # resultImgL = bboxResult(resultLR.pandas().xyxy[0], resized1)
-        # resultImgR = bboxResult(resultLR.pandas().xyxy[1], resized2)
+        resultImgL, getL = bboxResult(labelL, resized1)
+        resultImgR, getR = bboxResult(labelR, resized2)
 
-        # Show realtime
-        # cv2.imshow("Left Camera", resultImgL)
-        # cv2.imshow("Right Camera", resultImgR)
-        cv2.imshow("Left Camera", resultLR.render()[0][:, :, ::-1])
-        cv2.imshow("Right Camera", resultLR.render()[1][:, :, ::-1])
-
-        # Key to exit
-        if key == ord('q'):
-            print("\n\nExited!")
-            break
-
-        # # Print into command prompt
+        # Print into command prompt
         print("\n--------------------------------------------\n")
         resultLR.print()
+        
+        if not getL:
+            print("\nNo detection in Left Camera!")
+        elif not getR:
+            print("\nNo detection in Right Camera!")
+        elif not getL & getR:
+            print("\nNo detection!")
+
         try:
-            labelL = resultLR.pandas().xyxy[0] # (Left Camera)
-            labelR = resultLR.pandas().xyxy[1]  # (Right Camera)
-            xl, yl, wl, hl = convertBbox(labelL.iloc[0]['xmin'], labelL.iloc[0]['ymin'], labelL.iloc[0]['xmax'], labelL.iloc[0]['ymax'])
-            xr, yr, wr, hr = convertBbox(labelR.iloc[0]['xmin'], labelR.iloc[0]['ymin'], labelR.iloc[0]['xmax'], labelR.iloc[0]['ymax'])
-            
             print("\n\nDetection on Left Camera: ")
             print(labelL)
             print("\nDetection on Right Camera: ")
             print(labelR)
 
-            
+            xl, yl, wl, hl = convertBbox(labelL.iloc[0]['xmin'], labelL.iloc[0]['ymin'], labelL.iloc[0]['xmax'], labelL.iloc[0]['ymax'])
+            xr, yr, wr, hr = convertBbox(labelR.iloc[0]['xmin'], labelR.iloc[0]['ymin'], labelR.iloc[0]['xmax'], labelR.iloc[0]['ymax'])
             
             # At this time, only one class with highest conf can be measured
             if labelL.iloc[0]['name'] == labelR.iloc[0]['name']:
@@ -102,21 +96,32 @@ while True:
 
                 # Result from Distance Measurement
                 # CHANGE THIS IF THERE IS CHANGES ON BASELINE AND FOV
-                # distance = stereoscopicMeasurementV1(xl, xr, dim[0], 0.7, 170)
+                distance = stereoscopicMeasurementV1(xl, xr, dim[0], 0.7, 170)
                 
-                # data = {
-                #     'class': [labelL.iloc[0]['name']],
-                #     'distance': [distance]
-                # }
+                data = {
+                    'class': [labelL.iloc[0]['name']],
+                    'distance': [distance]
+                }
 
-                # print("\nDistance Measurement:")
-                # print(pd.DataFrame(data))
+                print("\nDistance Measurement:")
+                print(pd.DataFrame(data))
                 
             else:
-                print("Can't measure the distance!")    
+                print("\nCan't measure the distance!")    
         except IndexError:
-            print("No detection!")
-            continue
+            print("\nNo detection!")
+            print("\nCan't measure the distance!")
+
+        # Show realtime
+        cv2.imshow("Left Camera", resultImgL)
+        cv2.imshow("Right Camera", resultImgR)
+
+
+        # Key to exit
+        if key == ord('q'):
+            print("\n\nExited!")
+            break
+
     except KeyboardInterrupt:
         print("\n\nExited!")
         break
