@@ -8,7 +8,7 @@ import torch
 
 from helper.general import unfoldHeader, errorMessage
 from helper.load import resizedStereoCamera, stereoCamera, destroySession, stereoCalibrated
-from helper.distance import convertBbox, stereoscopicMeasurementV1
+from helper.distance import convertBbox, stereoscopicMeasurementV1, bboxResult
 
 
 
@@ -57,12 +57,20 @@ while True:
         # Inference Settings
         # EDIT THIS FOR DETECTION SETTINGS
         model.conf = 0.4
-        model.classes = [67]
+        model.classes = [0]
 
         # Load frame to model
         resultLR = model([resized1[:, :, ::-1], resized2[:, :, ::-1]])
 
+        # Extract bbox (x1, y1, x2, y2) to (x, y, w, h)
+
+        # Make rectangle manual by bbox
+        # resultImgL = bboxResult(resultLR.pandas().xyxy[0], resized1)
+        # resultImgR = bboxResult(resultLR.pandas().xyxy[1], resized2)
+
         # Show realtime
+        # cv2.imshow("Left Camera", resultImgL)
+        # cv2.imshow("Right Camera", resultImgR)
         cv2.imshow("Left Camera", resultLR.render()[0][:, :, ::-1])
         cv2.imshow("Right Camera", resultLR.render()[1][:, :, ::-1])
 
@@ -71,11 +79,9 @@ while True:
             print("\n\nExited!")
             break
 
-        # Print into command prompt
+        # # Print into command prompt
         print("\n--------------------------------------------\n")
         resultLR.print()
-
-        # Extract bbox (x1, y1, x2, y2) to (x, y, w, h)
         try:
             labelL = resultLR.pandas().xyxy[0] # (Left Camera)
             labelR = resultLR.pandas().xyxy[1]  # (Right Camera)
@@ -86,24 +92,25 @@ while True:
             print(labelL)
             print("\nDetection on Right Camera: ")
             print(labelR)
+
+            
             
             # At this time, only one class with highest conf can be measured
             if labelL.iloc[0]['name'] == labelR.iloc[0]['name']:
-                # print("(" + label.iloc[0]['name'] + ')')
                 print("\n\nx1 for left camera = " + str(xl))
                 print("x2 for right camera = " + str(xr))
 
                 # Result from Distance Measurement
                 # CHANGE THIS IF THERE IS CHANGES ON BASELINE AND FOV
-                distance = stereoscopicMeasurementV1(xl, xr, dim[0], 0.7, 170)
+                # distance = stereoscopicMeasurementV1(xl, xr, dim[0], 0.7, 170)
                 
-                data = {
-                    'class': [labelL.iloc[0]['name']],
-                    'distance': [distance]
-                }
+                # data = {
+                #     'class': [labelL.iloc[0]['name']],
+                #     'distance': [distance]
+                # }
 
-                print("\nDistance Measurement:")
-                print(pd.DataFrame(data))
+                # print("\nDistance Measurement:")
+                # print(pd.DataFrame(data))
                 
             else:
                 print("Can't measure the distance!")    

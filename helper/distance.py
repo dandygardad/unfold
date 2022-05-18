@@ -2,6 +2,19 @@
 # for ``unfold`` by dandy garda
 
 import math
+import cv2
+
+# Create bbox manually
+def bboxResult(dataBbox, frame):
+    for bbox in dataBbox:
+        xmin = int(bbox[0])
+        ymin = int(bbox[1])
+        xmax = int(bbox[2])
+        ymax = int(bbox[3])
+
+        resultImg = cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
+        return resultImg
+
 
 # Converting the results from PyTorch hub
 def convertBbox(x1, y1, x2, y2):
@@ -9,10 +22,6 @@ def convertBbox(x1, y1, x2, y2):
     yc = (y1 + y2) / 2
     width = (x2 - x1)
     height = (y2 - y1)
-
-    # This code came from Nicolai Nielsen for finding midpoint of bbox
-    # xc = (x + width)/2
-    # yc = (y + height)/2
 
     return xc, yc, width, height
 
