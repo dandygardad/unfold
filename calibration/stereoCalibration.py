@@ -11,7 +11,7 @@ import sys
 chessboard = (9, 6)
 dim = (640, 480)
 
-# Take parameter on terminal
+# Unix time value as the name of folder for chessboard on terminal
 pathImg = sys.argv[1]
 
 
