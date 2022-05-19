@@ -28,14 +28,6 @@ if not inputL.isnumeric() & inputR.isnumeric():
 dim = (640, 480)
 camL, camR = stereoCamera(inputL, inputR, dim)
 
-# classes = list()
-# distance = list()
-# x = list()
-# y = list()
-# w = list()
-# h = list()
-
-
 # LOAD MODEL (YOLOv5)
 print("\n\n=== RUNNING YOLOv5 ===")
 try:
@@ -50,6 +42,8 @@ print("\n\n=== PUT YOLOv5 INTO STEREO CAMERA ===")
 print("=== APPLY DISTANCE MEASUREMENT ===")
 stereoMapL_x, stereoMapL_y, stereoMapR_x, stereoMapR_y = stereoCalibrated()
 while True:
+    classes = list()
+    distances = list()
     try:
         # Load stereo camera
         resized1, resized2, key = resizedStereoCamera(camL, camR, stereoMapL_x, stereoMapL_y, stereoMapR_x, stereoMapR_y, dim)
@@ -57,66 +51,78 @@ while True:
         # Inference Settings
         # EDIT THIS FOR DETECTION SETTINGS
         model.conf = 0.4
-        model.classes = [0]
+        # model.classes = [0]
 
         # Load frame to model
         resultLR = model([resized1[:, :, ::-1], resized2[:, :, ::-1]])
 
-        # Extract bbox (x1, y1, x2, y2) to (x, y, w, h)
+        labelL = resultLR.pandas().xyxy[0] # (Left Camera)
+        labelR = resultLR.pandas().xyxy[1]  # (Right Camera)
 
         # Make rectangle manual by bbox
-        # resultImgL = bboxResult(resultLR.pandas().xyxy[0], resized1)
-        # resultImgR = bboxResult(resultLR.pandas().xyxy[1], resized2)
+        resultImgL, getL = bboxResult(labelL, resized1)
+        resultImgR, getR = bboxResult(labelR, resized2)
+
+        # Print into command prompt
+        print("\n--------------------------------------------\n")
+        resultLR.print()
+        
+        if not getL:
+            print("\nERRRR: No detection in Left Camera!")
+        if not getR:
+            print("\nERRRR: No detection in Right Camera!")
+
+        if len(labelL) and len(labelR):
+            print("\n\nDetection on Left Camera: ")
+            print(labelL)
+            print("\nDetection on Right Camera: ")
+            print(labelR)
+
+            if len(labelL) == len(labelR):
+                id = 0
+                while id < len(labelL):
+                    xl, yl, wl, hl = convertBbox(labelL.iloc[id]['xmin'], labelL.iloc[id]['ymin'], labelL.iloc[id]['xmax'], labelL.iloc[id]['ymax'])
+                    xr, yr, wr, hr = convertBbox(labelR.iloc[id]['xmin'], labelR.iloc[id]['ymin'], labelR.iloc[id]['xmax'], labelR.iloc[id]['ymax'])
+
+                    if labelL.iloc[id]['name'] == labelR.iloc[id]['name']:
+                        print("\n\nx1 for left camera = " + str(xl))
+                        print("x2 for right camera = " + str(xr))
+
+                        # Result from Distance Measurement
+                        # CHANGE THIS IF THERE IS CHANGES ON BASELINE AND FOV
+                        distance = stereoscopicMeasurementV1(xl, xr, dim[0], 10, 78)
+
+                        classes.append(labelL.iloc[id]['name'])
+                        distances.append(distance)
+                    else:
+                        print("\nERRRR: Class Left & Right is not same!")
+                        break
+                    id += 1
+
+                if len(classes):
+                    data = {
+                        'class': classes,
+                        'distance': distances
+                    }
+
+                    print("\nDistance Measurement:")
+                    print(pd.DataFrame(data))
+
+            else:
+                print("\nERRRR: Total label in L doesn't same as total label in R")    
+        else:
+            print("\nERRRR: Can't detect!")
 
         # Show realtime
-        # cv2.imshow("Left Camera", resultImgL)
-        # cv2.imshow("Right Camera", resultImgR)
-        cv2.imshow("Left Camera", resultLR.render()[0][:, :, ::-1])
-        cv2.imshow("Right Camera", resultLR.render()[1][:, :, ::-1])
+        cv2.imshow("Left Camera", resultImgL)
+        cv2.imshow("Right Camera", resultImgR)
+
 
         # Key to exit
         if key == ord('q'):
             print("\n\nExited!")
             break
 
-        # # Print into command prompt
-        print("\n--------------------------------------------\n")
-        resultLR.print()
-        try:
-            labelL = resultLR.pandas().xyxy[0] # (Left Camera)
-            labelR = resultLR.pandas().xyxy[1]  # (Right Camera)
-            xl, yl, wl, hl = convertBbox(labelL.iloc[0]['xmin'], labelL.iloc[0]['ymin'], labelL.iloc[0]['xmax'], labelL.iloc[0]['ymax'])
-            xr, yr, wr, hr = convertBbox(labelR.iloc[0]['xmin'], labelR.iloc[0]['ymin'], labelR.iloc[0]['xmax'], labelR.iloc[0]['ymax'])
-            
-            print("\n\nDetection on Left Camera: ")
-            print(labelL)
-            print("\nDetection on Right Camera: ")
-            print(labelR)
-
-            
-            
-            # At this time, only one class with highest conf can be measured
-            if labelL.iloc[0]['name'] == labelR.iloc[0]['name']:
-                print("\n\nx1 for left camera = " + str(xl))
-                print("x2 for right camera = " + str(xr))
-
-                # Result from Distance Measurement
-                # CHANGE THIS IF THERE IS CHANGES ON BASELINE AND FOV
-                # distance = stereoscopicMeasurementV1(xl, xr, dim[0], 0.7, 170)
-                
-                # data = {
-                #     'class': [labelL.iloc[0]['name']],
-                #     'distance': [distance]
-                # }
-
-                # print("\nDistance Measurement:")
-                # print(pd.DataFrame(data))
-                
-            else:
-                print("Can't measure the distance!")    
-        except IndexError:
-            print("No detection!")
-            continue
     except KeyboardInterrupt:
         print("\n\nExited!")
         break
