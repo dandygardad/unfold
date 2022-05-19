@@ -56,4 +56,4 @@ def stereoscopicMeasurementV1(leftX, rightX, width, b, fov):
 
     distance = baselineWidth / ((2 * fieldOfView) * disparity)
 
-    return round(distance)
+    return distance

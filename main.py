@@ -28,14 +28,6 @@ if not inputL.isnumeric() & inputR.isnumeric():
 dim = (640, 480)
 camL, camR = stereoCamera(inputL, inputR, dim)
 
-# classes = list()
-# distance = list()
-# x = list()
-# y = list()
-# w = list()
-# h = list()
-
-
 # LOAD MODEL (YOLOv5)
 print("\n\n=== RUNNING YOLOv5 ===")
 try:
@@ -50,6 +42,8 @@ print("\n\n=== PUT YOLOv5 INTO STEREO CAMERA ===")
 print("=== APPLY DISTANCE MEASUREMENT ===")
 stereoMapL_x, stereoMapL_y, stereoMapR_x, stereoMapR_y = stereoCalibrated()
 while True:
+    classes = list()
+    distances = list()
     try:
         # Load stereo camera
         resized1, resized2, key = resizedStereoCamera(camL, camR, stereoMapL_x, stereoMapL_y, stereoMapR_x, stereoMapR_y, dim)
@@ -57,7 +51,7 @@ while True:
         # Inference Settings
         # EDIT THIS FOR DETECTION SETTINGS
         model.conf = 0.4
-        model.classes = [0]
+        # model.classes = [0]
 
         # Load frame to model
         resultLR = model([resized1[:, :, ::-1], resized2[:, :, ::-1]])
@@ -74,43 +68,50 @@ while True:
         resultLR.print()
         
         if not getL:
-            print("\nNo detection in Left Camera!")
-        elif not getR:
-            print("\nNo detection in Right Camera!")
-        elif not getL & getR:
-            print("\nNo detection!")
+            print("\nERRRR: No detection in Left Camera!")
+        if not getR:
+            print("\nERRRR: No detection in Right Camera!")
 
-        try:
+        if len(labelL) and len(labelR):
             print("\n\nDetection on Left Camera: ")
             print(labelL)
             print("\nDetection on Right Camera: ")
             print(labelR)
 
-            xl, yl, wl, hl = convertBbox(labelL.iloc[0]['xmin'], labelL.iloc[0]['ymin'], labelL.iloc[0]['xmax'], labelL.iloc[0]['ymax'])
-            xr, yr, wr, hr = convertBbox(labelR.iloc[0]['xmin'], labelR.iloc[0]['ymin'], labelR.iloc[0]['xmax'], labelR.iloc[0]['ymax'])
-            
-            # At this time, only one class with highest conf can be measured
-            if labelL.iloc[0]['name'] == labelR.iloc[0]['name']:
-                print("\n\nx1 for left camera = " + str(xl))
-                print("x2 for right camera = " + str(xr))
+            if len(labelL) == len(labelR):
+                id = 0
+                while id < len(labelL):
+                    xl, yl, wl, hl = convertBbox(labelL.iloc[id]['xmin'], labelL.iloc[id]['ymin'], labelL.iloc[id]['xmax'], labelL.iloc[id]['ymax'])
+                    xr, yr, wr, hr = convertBbox(labelR.iloc[id]['xmin'], labelR.iloc[id]['ymin'], labelR.iloc[id]['xmax'], labelR.iloc[id]['ymax'])
 
-                # Result from Distance Measurement
-                # CHANGE THIS IF THERE IS CHANGES ON BASELINE AND FOV
-                distance = stereoscopicMeasurementV1(xl, xr, dim[0], 0.7, 170)
-                
-                data = {
-                    'class': [labelL.iloc[0]['name']],
-                    'distance': [distance]
-                }
+                    if labelL.iloc[id]['name'] == labelR.iloc[id]['name']:
+                        print("\n\nx1 for left camera = " + str(xl))
+                        print("x2 for right camera = " + str(xr))
 
-                print("\nDistance Measurement:")
-                print(pd.DataFrame(data))
-                
+                        # Result from Distance Measurement
+                        # CHANGE THIS IF THERE IS CHANGES ON BASELINE AND FOV
+                        distance = stereoscopicMeasurementV1(xl, xr, dim[0], 10, 78)
+
+                        classes.append(labelL.iloc[id]['name'])
+                        distances.append(distance)
+                    else:
+                        print("\nERRRR: Class Left & Right is not same!")
+                        break
+                    id += 1
+
+                if len(classes):
+                    data = {
+                        'class': classes,
+                        'distance': distances
+                    }
+
+                    print("\nDistance Measurement:")
+                    print(pd.DataFrame(data))
+
             else:
-                print("\nCan't measure the distance!")    
-        except IndexError:
-            print("\nNo detection!")
-            print("\nCan't measure the distance!")
+                print("\nERRRR: Total label in L doesn't same as total label in R")    
+        else:
+            print("\nERRRR: Can't detect!")
 
         # Show realtime
         cv2.imshow("Left Camera", resultImgL)
