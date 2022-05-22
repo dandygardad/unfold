@@ -52,7 +52,7 @@ while True:
         # Inference Settings
         # EDIT THIS FOR DETECTION SETTINGS
         model.conf = 0.4
-        # model.classes = [0]
+        model.classes = [3]
 
         # Load frame to model
         resultLR = model([resized1[:, :, ::-1], resized2[:, :, ::-1]])
@@ -82,7 +82,7 @@ while True:
 
                         # Result from Distance Measurement
                         # CHANGE THIS IF THERE IS CHANGES ON BASELINE AND FOV
-                        distance = stereoscopicMeasurementV1(xl, xr, dim[0], 10, 78)
+                        distance = stereoscopicMeasurementV1(xl, xr, dim[0], 7, 170)
 
                         classes.append(labelL.iloc[id]['name'])
                         distances.append(distance)
