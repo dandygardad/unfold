@@ -3,6 +3,7 @@
 
 import math
 import cv2
+from helper.general import errorMessage
 
 # Create manual bbox label and distance
 def bboxLabelDistance(dataBbox, data, frame):
@@ -52,7 +53,10 @@ def stereoscopicMeasurementV1(leftX, rightX, width, b, fov):
     baselineWidth = float(b) * float(width)
     disparity = float(leftX) - float(rightX)
     fieldOfView = float(math.tan(fov / 2))
-
-    distance = baselineWidth / ((2 * fieldOfView) * disparity)
-
+    
+    try:
+        distance = baselineWidth / ((2 * fieldOfView) * disparity)
+    except ZeroDivisionError:
+        errorMessage("Field Of View/Baseline tidak bisa dibagi 0")
+        
     return distance

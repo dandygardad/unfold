@@ -5,6 +5,7 @@
 import pandas as pd
 import cv2
 import torch
+import json
 
 from helper.general import unfoldHeader, errorMessage, errorDetection
 from helper.load import resizedStereoCamera, stereoCamera, destroySession, stereoCalibrated
@@ -15,6 +16,11 @@ from helper.distance import convertBbox, stereoscopicMeasurementV1, bboxLabelDis
 # ``unfold`` Header
 unfoldHeader()
 
+
+# GET DATA FROM JSON
+f = open('changeData.json')
+dataJson = json.load(f)
+f.close()
 
 
 # LOAD STEREO CAMERA
@@ -52,7 +58,10 @@ while True:
         # Inference Settings
         # EDIT THIS FOR DETECTION SETTINGS
         model.conf = 0.4
-        model.classes = [3]
+
+        if dataJson['cameraConfig']['customModel'] != False:
+            model.classes = dataJson['cameraConfig']['customModel']
+            
 
         # Load frame to model
         resultLR = model([resized1[:, :, ::-1], resized2[:, :, ::-1]])
@@ -82,7 +91,7 @@ while True:
 
                         # Result from Distance Measurement
                         # CHANGE THIS IF THERE IS CHANGES ON BASELINE AND FOV
-                        distance = stereoscopicMeasurementV1(xl, xr, dim[0], 7, 170)
+                        distance = stereoscopicMeasurementV1(xl, xr, dim[0], dataJson['cameraConfig']['baseline'], dataJson['cameraConfig']['fieldOfView'])
 
                         classes.append(labelL.iloc[id]['name'])
                         distances.append(distance)

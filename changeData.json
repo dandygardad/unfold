@@ -1,0 +1,10 @@
+{
+    "stereoCalibration": {
+        "squareSize": 0
+    },
+    "cameraConfig":{
+        "baseline": 0,
+        "fieldOfView": 0,
+        "customModel": false
+    }
+}

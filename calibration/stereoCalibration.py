@@ -6,6 +6,7 @@ import numpy as np
 import cv2
 import glob
 import sys
+import json
 
 # Initialize chessboard and dimension
 chessboard = (9, 6)
@@ -14,6 +15,12 @@ dim = (640, 480)
 # Unix time value as the name of folder for chessboard on terminal
 pathImg = sys.argv[1]
 
+# Get square size from changeData.json
+f = open('changeData.json')
+squareSizeJson = json.load(f)
+f.close()
+
+squareSizeJson = squareSizeJson['stereoCalibration']['squareSize']
 
 print("\n== GENERATE STEREO MAP FOR UNDISTORT AND RECTIFY STEREO CAMERA ==\n``unfold`` by dandy garda\n")
 
@@ -130,4 +137,4 @@ import os
 
 # RUN IT
 # change the path if there is new images for calibration
-cameraCalibration(os.getcwd() + '\\calibration\\images\\'+ pathImg + '\\left\\*.jpg', os.getcwd() + '\\calibration\\images\\' + pathImg + '\\right\\*.jpg', 25, chessboard[0], chessboard[1])
+cameraCalibration(os.getcwd() + '\\calibration\\images\\'+ pathImg + '\\left\\*.jpg', os.getcwd() + '\\calibration\\images\\' + pathImg + '\\right\\*.jpg', squareSizeJson, chessboard[0], chessboard[1])
