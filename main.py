@@ -53,7 +53,7 @@ while True:
     distances = list()
     try:
         # Load stereo camera
-        resized1, resized2, key = resizedStereoCamera(camL, camR, stereoMapL_x, stereoMapL_y, stereoMapR_x, stereoMapR_y, dim)
+        resized1, resized2, resizedGrayL, resizedGrayR, key = resizedStereoCamera(camL, camR, stereoMapL_x, stereoMapL_y, stereoMapR_x, stereoMapR_y, dim)
         
         # Inference Settings
         # EDIT THIS FOR DETECTION SETTINGS
@@ -64,7 +64,7 @@ while True:
             
 
         # Load frame to model
-        resultLR = model([resized1[:, :, ::-1], resized2[:, :, ::-1]])
+        resultLR = model([resizedGrayL, resizedGrayR])
 
         labelL = resultLR.pandas().xyxy[0] # (Left Camera)
         labelR = resultLR.pandas().xyxy[1]  # (Right Camera)
@@ -92,6 +92,7 @@ while True:
                         # Result from Distance Measurement
                         # CHANGE THIS IF THERE IS CHANGES ON BASELINE AND FOV
                         distance = stereoscopicMeasurementV1(xl, xr, dim[0], dataJson['cameraConfig']['baseline'], dataJson['cameraConfig']['fieldOfView'])
+                        # distance = stereoscopicMeasurementV2(xl, xr, dim[0], dataJson['cameraConfig']['baseline'], dataJson['cameraConfig']['fieldOfView'])
 
                         classes.append(labelL.iloc[id]['name'])
                         distances.append(distance)

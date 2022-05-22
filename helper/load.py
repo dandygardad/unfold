@@ -50,6 +50,10 @@ def resizedStereoCamera(L, R, mapLx, mapLy, mapRx, mapRy, resize):
     # Remap frame based from stereoMap
     frameL = cv2.remap(frameL, mapLx, mapLy, cv2.INTER_LANCZOS4, cv2.BORDER_CONSTANT, 0)
     frameR = cv2.remap(frameR, mapRx, mapRy, cv2.INTER_LANCZOS4, cv2.BORDER_CONSTANT, 0)
+    
+    # Convert to grayscale
+    frameGrayL = cv2.cvtColor(frameL, cv2.COLOR_BGR2GRAY)
+    frameGrayR = cv2.cvtColor(frameR, cv2.COLOR_BGR2GRAY)
 
     # If frame error then break
     if not retL & retR:
@@ -57,7 +61,7 @@ def resizedStereoCamera(L, R, mapLx, mapLy, mapRx, mapRy, resize):
 
     key = cv2.waitKey(1)
 
-    return frameL, frameR, key
+    return frameL, frameR, frameGrayL, frameGrayR, key
 
 def destroySession(L, R):
     L.release()
