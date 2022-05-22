@@ -8,7 +8,7 @@ import torch
 
 from helper.general import unfoldHeader, errorMessage
 from helper.load import resizedStereoCamera, stereoCamera, destroySession, stereoCalibrated
-from helper.distance import convertBbox, stereoscopicMeasurementV1, bboxResult
+from helper.distance import convertBbox, stereoscopicMeasurementV1, bboxResult, bboxLabelDistance
 
 
 
@@ -41,6 +41,7 @@ except Exception as e:
 print("\n\n=== PUT YOLOv5 INTO STEREO CAMERA ===")
 print("=== APPLY DISTANCE MEASUREMENT ===")
 stereoMapL_x, stereoMapL_y, stereoMapR_x, stereoMapR_y = stereoCalibrated()
+
 while True:
     classes = list()
     distances = list()
@@ -59,13 +60,13 @@ while True:
         labelL = resultLR.pandas().xyxy[0] # (Left Camera)
         labelR = resultLR.pandas().xyxy[1]  # (Right Camera)
 
-        # Make rectangle manual by bbox
-        resultImgL, getL = bboxResult(labelL, resized1)
-        resultImgR, getR = bboxResult(labelR, resized2)
-
         # Print into command prompt
         print("\n--------------------------------------------\n")
         resultLR.print()
+
+        # Make rectangle manual by bbox
+        resultImgL, getL = bboxResult(labelL, resized1)
+        resultImgR, getR = bboxResult(labelR, resized2)
         
         if not getL:
             print("\nERRRR: No detection in Left Camera!")
@@ -104,14 +105,18 @@ while True:
                         'class': classes,
                         'distance': distances
                     }
-
+                    data = pd.DataFrame(data)
+                    
                     print("\nDistance Measurement:")
-                    print(pd.DataFrame(data))
+                    print(data)
 
             else:
                 print("\nERRRR: Total label in L doesn't same as total label in R")    
         else:
             print("\nERRRR: Can't detect!")
+
+        bboxLabelDistance(labelL, data, resultImgL)
+        bboxLabelDistance(labelR, data, resultImgR)
 
         # Show realtime
         cv2.imshow("Left Camera", resultImgL)
