@@ -6,9 +6,9 @@ import pandas as pd
 import cv2
 import torch
 
-from helper.general import unfoldHeader, errorMessage
+from helper.general import unfoldHeader, errorMessage, errorDetection
 from helper.load import resizedStereoCamera, stereoCamera, destroySession, stereoCalibrated
-from helper.distance import convertBbox, stereoscopicMeasurementV1, bboxResult, bboxLabelDistance
+from helper.distance import convertBbox, stereoscopicMeasurementV1, bboxLabelDistance
 
 
 
@@ -64,15 +64,6 @@ while True:
         print("\n--------------------------------------------\n")
         resultLR.print()
 
-        # Make rectangle manual by bbox
-        resultImgL, getL = bboxResult(labelL, resized1)
-        resultImgR, getR = bboxResult(labelR, resized2)
-        
-        if not getL:
-            print("\nERRRR: No detection in Left Camera!")
-        if not getR:
-            print("\nERRRR: No detection in Right Camera!")
-
         if len(labelL) and len(labelR):
             print("\n\nDetection on Left Camera: ")
             print(labelL)
@@ -96,7 +87,7 @@ while True:
                         classes.append(labelL.iloc[id]['name'])
                         distances.append(distance)
                     else:
-                        print("\nERRRR: Class Left & Right is not same!")
+                        resultImgL, resultImgR = errorDetection("Class Left & Right is not same!", resized1, resized2)
                         break
                     id += 1
 
@@ -110,13 +101,13 @@ while True:
                     print("\nDistance Measurement:")
                     print(data)
 
+                    # Put manual bbox and distance in frame
+                    resultImgL = bboxLabelDistance(labelL, data, resized1)
+                    resultImgR = bboxLabelDistance(labelR, data, resized2)
             else:
-                print("\nERRRR: Total label in L doesn't same as total label in R")    
+                resultImgL, resultImgR = errorDetection("Total label in L doesn't same as total label in R", resized1, resized2)
         else:
-            print("\nERRRR: Can't detect!")
-
-        bboxLabelDistance(labelL, data, resultImgL)
-        bboxLabelDistance(labelR, data, resultImgR)
+            resultImgL, resultImgR = errorDetection("No detection on left/right camera!", resized1, resized2)
 
         # Show realtime
         cv2.imshow("Left Camera", resultImgL)

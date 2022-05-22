@@ -4,29 +4,13 @@
 import math
 import cv2
 
-# Create bbox manually
-def bboxResult(dataBbox, frame):
-    if len(dataBbox):
-        i = 0
-        while i < len(dataBbox):
-            xmin = int(dataBbox.iloc[i]['xmin'])
-            ymin = int(dataBbox.iloc[i]['ymin'])
-            xmax = int(dataBbox.iloc[i]['xmax'])
-            ymax = int(dataBbox.iloc[i]['ymax'])
-            
-            resultImg = cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
-            i += 1
-
-    else:
-        return frame, False
-
-    return resultImg, True
-
+# Create manual bbox label and distance
 def bboxLabelDistance(dataBbox, data, frame):
     i = 0
     while i < len(data):
         label = data.iloc[i]['class']
-        distance = str(data.iloc[i]['distance'])
+        distance = str(round(data.iloc[i]['distance']))
+        
         xmin = int(dataBbox.iloc[i]['xmin'])
         ymin = int(dataBbox.iloc[i]['ymin'])
         xmax = int(dataBbox.iloc[i]['xmax'])
@@ -34,8 +18,9 @@ def bboxLabelDistance(dataBbox, data, frame):
 
         text_size, _ = cv2.getTextSize(label + ' ' + distance, cv2.FONT_HERSHEY_SIMPLEX, 1, 2)
         text_w, text_h = text_size
-        resultImg = cv2.rectangle(frame, (xmin, ymin), (xmin + text_w, ymin - text_h), (0, 0, 0), -1)
 
+        resultImg = cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
+        resultImg = cv2.rectangle(frame, (xmin, ymin), (xmin + text_w, ymin - text_h), (0, 0, 0), -1)
         resultImg = cv2.putText(frame, label + ' ' + distance, (xmin, ymin-5), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 1, cv2.LINE_AA)
         i += 1
 

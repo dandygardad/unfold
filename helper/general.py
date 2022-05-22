@@ -24,3 +24,8 @@ def errorMessage(msg):
 def originalDimCheck(L, R):
     print("\nVideo 1 original dimension: " + str(L.get(cv2.CAP_PROP_FRAME_WIDTH)) + ' ' + str(L.get(cv2.CAP_PROP_FRAME_HEIGHT)))
     print("Video 2 original dimension: " + str(R.get(cv2.CAP_PROP_FRAME_WIDTH)) + ' ' + str(R.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+
+# Template error related from detection
+def errorDetection(msg, frameL, frameR):
+    print("\nERRRR: " + msg)
+    return frameL, frameR
