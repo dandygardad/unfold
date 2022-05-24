@@ -9,7 +9,7 @@ import json
 
 from helper.general import unfoldHeader, errorMessage, errorDetection
 from helper.load import resizedStereoCamera, stereoCamera, destroySession, stereoCalibrated
-from helper.distance import convertBbox, stereoscopicMeasurementV1, bboxLabelDistance
+from helper.distance import convertBbox, stereoscopicMeasurementV1, stereoscopicMeasurementV2, bboxLabelDistance
 
 
 
@@ -22,6 +22,18 @@ f = open('changeData.json')
 dataJson = json.load(f)
 f.close()
 
+# Load data from json
+if dataJson['cameraConfig']['model']:
+    # Custom model
+    model_custom = './models/' + dataJson['cameraConfig']['model']
+else:
+    # Default model by YOLOv5 (Coco128)
+    model_custom = './models/' + 'yolov5s.pt'
+
+if dataJson['cameraConfig']['conf']:
+    conf_custom = dataJson['cameraConfig']['conf']
+else:
+    conf_custom = 0
 
 # LOAD STEREO CAMERA
 print("=== LOAD STEREO CAMERA ===")
@@ -37,7 +49,7 @@ camL, camR = stereoCamera(inputL, inputR, dim)
 # LOAD MODEL (YOLOv5)
 print("\n\n=== RUNNING YOLOv5 ===")
 try:
-    model = torch.hub.load('yolov5-detect', 'custom', path='./models/yolov5s.pt', source='local')
+    model = torch.hub.load('yolov5-detect', 'custom', path=model_custom, source='local')
 except Exception as e:
     print(e)
     errorMessage("Cannot load model, please check 'torch.hub.load' function!")
@@ -57,7 +69,7 @@ while True:
         
         # Inference Settings
         # EDIT THIS FOR DETECTION SETTINGS
-        model.conf = 0.4
+        model.conf = conf_custom
 
         if dataJson['cameraConfig']['customModel'] != False:
             model.classes = dataJson['cameraConfig']['customModel']
@@ -91,8 +103,8 @@ while True:
 
                         # Result from Distance Measurement
                         # CHANGE THIS IF THERE IS CHANGES ON BASELINE AND FOV
-                        distance = stereoscopicMeasurementV1(xl, xr, dim[0], dataJson['cameraConfig']['baseline'], dataJson['cameraConfig']['fieldOfView'])
-                        # distance = stereoscopicMeasurementV2(xl, xr, dim[0], dataJson['cameraConfig']['baseline'], dataJson['cameraConfig']['fieldOfView'])
+                        # distance = stereoscopicMeasurementV1(xl, xr, dim[0], dataJson['cameraConfig']['baseline'], dataJson['cameraConfig']['fieldOfView'])
+                        distance = stereoscopicMeasurementV2(xl, xr, dim[0], dataJson['cameraConfig']['baseline'], dataJson['cameraConfig']['fieldOfView'])
 
                         classes.append(labelL.iloc[id]['name'])
                         distances.append(distance)

@@ -13,11 +13,18 @@ def stereoCamera(L, R, resized):
     if not camL.isOpened() & camR.isOpened():
         errorMessage("Cannot open webcam!")
 
-    # Show original dimension
-    originalDimCheck(camL, camR)
 
-    # Show resized dimension
-    print("\nResized to: " + str(resized))
+    # Show original dimension
+    widthL, heightL, widthR, heightR = originalDimCheck(camL, camR)
+
+    print("\nVideo 1 original dimension: " + str(widthL) + ' ' + str(heightL))
+    print("Video 2 original dimension: " + str(widthR) + ' ' + str(heightR))
+
+    if widthL == resized[0] and heightL == resized[1] and widthR == resized[0] and heightR == resized[1]:
+        print("\nINGFO: Two cameras have the same dimensions, no need to resized!")
+    else:
+        # Show resized dimension
+        print("\nResized to: " + str(resized))
 
     print("\nSuccess: Stereo Camera successfully loaded!")
 
@@ -43,13 +50,14 @@ def resizedStereoCamera(L, R, mapLx, mapLy, mapRx, mapRy, resize):
     retL, frameL = L.read()
     retR, frameR = R.read()
 
-    # Resized input based from dimension
-    frameL = cv2.resize(frameL, resize, interpolation=cv2.INTER_AREA)
-    frameR = cv2.resize(frameR, resize, interpolation=cv2.INTER_AREA)
+    if not frameL.shape[1] == resize[0] and frameL.shape[0] == resize[1]:
+        # Resized input based from dimension
+        frameL = cv2.resize(frameL, resize, interpolation=cv2.INTER_AREA)
+        frameR = cv2.resize(frameR, resize, interpolation=cv2.INTER_AREA)
 
     # Remap frame based from stereoMap
-    frameL = cv2.remap(frameL, mapLx, mapLy, cv2.INTER_LANCZOS4, cv2.BORDER_CONSTANT, 0)
-    frameR = cv2.remap(frameR, mapRx, mapRy, cv2.INTER_LANCZOS4, cv2.BORDER_CONSTANT, 0)
+    # frameL = cv2.remap(frameL, mapLx, mapLy, cv2.INTER_LANCZOS4, cv2.BORDER_CONSTANT, 0)
+    # frameR = cv2.remap(frameR, mapRx, mapRy, cv2.INTER_LANCZOS4, cv2.BORDER_CONSTANT, 0)
     
     # Convert to grayscale
     frameGrayL = cv2.cvtColor(frameL, cv2.COLOR_BGR2GRAY)
