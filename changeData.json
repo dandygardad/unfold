@@ -3,10 +3,10 @@
         "squareSize": 25
     },
     "cameraConfig":{
-        "baseline": 0.7,
-        "fieldOfView": 170,
-        "customModel": false,
-        "model": false,
+        "baseline": 0.07,
+        "fieldOfView": 78,
+        "customModel": [0],
+        "model": "primary01.pt",
         "conf": 0.4
     }
 }

@@ -56,8 +56,8 @@ def resizedStereoCamera(L, R, mapLx, mapLy, mapRx, mapRy, resize):
         frameR = cv2.resize(frameR, resize, interpolation=cv2.INTER_AREA)
 
     # Remap frame based from stereoMap
-    # frameL = cv2.remap(frameL, mapLx, mapLy, cv2.INTER_LANCZOS4, cv2.BORDER_CONSTANT, 0)
-    # frameR = cv2.remap(frameR, mapRx, mapRy, cv2.INTER_LANCZOS4, cv2.BORDER_CONSTANT, 0)
+    frameL = cv2.remap(frameL, mapLx, mapLy, cv2.INTER_LANCZOS4, cv2.BORDER_CONSTANT, 0)
+    frameR = cv2.remap(frameR, mapRx, mapRy, cv2.INTER_LANCZOS4, cv2.BORDER_CONSTANT, 0)
     
     # Convert to grayscale
     frameGrayL = cv2.cvtColor(frameL, cv2.COLOR_BGR2GRAY)
