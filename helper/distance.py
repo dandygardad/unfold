@@ -10,7 +10,7 @@ def bboxLabelDistance(dataBbox, data, frame):
     i = 0
     while i < len(data):
         label = data.iloc[i]['class']
-        distance = str(data.iloc[i]['distance'])
+        distance = str(round(data.iloc[i]['distance'], 2))
         
         xmin = int(dataBbox.iloc[i]['xmin'])
         ymin = int(dataBbox.iloc[i]['ymin'])
