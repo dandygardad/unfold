@@ -1,10 +1,12 @@
 {
     "stereoCalibration": {
-        "squareSize": 0
+        "squareSize": 25
     },
     "cameraConfig":{
         "baseline": 0,
         "fieldOfView": 0,
-        "customModel": false
+        "customModel": false,
+        "model": false,
+        "conf": 0.4
     }
 }
