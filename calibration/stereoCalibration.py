@@ -101,6 +101,7 @@ def cameraCalibration(pathLeft, pathRight, squareSize, chessWidth=9, chessHeight
 
     # Get field of view and focal length
     manualFov(cameraMatrixL, dim)
+    # matrixValues(cameraMatrixL, dim)
     heightL, widthL, channelsL = imgL.shape
     newCameraMatrixL, roi_L = cv2.getOptimalNewCameraMatrix(cameraMatrixL, distL, (widthL, heightL), 1, (widthL, heightL))
 
