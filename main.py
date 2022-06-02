@@ -102,7 +102,6 @@ while True:
                         print("x2 for right camera = " + str(xr))
 
                         # Result from Distance Measurement
-                        # CHANGE THIS IF THERE IS CHANGES ON BASELINE AND FOV
                         distance = stereoscopicMeasurementV1(xl, xr, dim[0], dataJson['cameraConfig']['baseline'], dataJson['cameraConfig']['fieldOfView'])
                         # distance = stereoscopicMeasurementV2(xl, xr, dim[0], dataJson['cameraConfig']['baseline'], dataJson['cameraConfig']['fieldOfView'])
 

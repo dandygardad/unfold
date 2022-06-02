@@ -51,7 +51,7 @@ fov = field of view/lens view angle (two cameras must be of the same model)
 """
 def stereoscopicMeasurementV1(leftX, rightX, width, b, fov):
     baselineWidth = float(b) * float(width)
-    disparity = float(leftX) - float(rightX)
+    disparity = abs(float(leftX) - float(rightX))
     fieldOfView = float(math.tan(fov / 2))
     
     try:
