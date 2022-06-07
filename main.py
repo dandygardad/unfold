@@ -1,7 +1,7 @@
 # Main application
 # for ``unfold`` by dandy garda
 
-# Import libraries
+# Import libraries and functions
 import pandas as pd
 import cv2
 import torch
@@ -17,7 +17,9 @@ from helper.distance import convertBbox, stereoscopicMeasurement, bboxLabelDista
 unfoldHeader()
 
 
-# GET DATA FROM JSON
+
+
+###### LOAD JSON ######
 f = open('changeData.json')
 dataJson = json.load(f)
 f.close()
@@ -34,8 +36,12 @@ if dataJson['cameraConfig']['conf']:
     conf_custom = dataJson['cameraConfig']['conf']
 else:
     conf_custom = 0
+###### END OF LOAD JSON ######
 
-# LOAD STEREO CAMERA
+
+
+
+###### LOAD STEREO CAMERA ######
 print("=== LOAD STEREO CAMERA ===")
 inputL = input("Masukkan input kamera kiri (0/1/2/3/..): ")
 inputR = input("Masukkan input kamera kanan (0/1/2/3/..): ")
@@ -45,14 +51,21 @@ if not inputL.isnumeric() & inputR.isnumeric():
 
 dim = (640, 480)
 camL, camR = stereoCamera(inputL, inputR, dim)
+###### END OF LOAD STEREO CAMERA ######
 
-# LOAD MODEL (YOLOv5)
+
+
+
+###### LOAD YOLOv5 ######
 print("\n\n=== RUNNING YOLOv5 ===")
 try:
     model = torch.hub.load('yolov5-detect', 'custom', path=model_custom, source='local')
 except Exception as e:
     print(e)
     errorMessage("Cannot load model, please check 'torch.hub.load' function!")
+###### END OF LOAD YOLOv5 ######
+
+
 
 
 # RUN YOLOv5 TO OpenCV
@@ -83,6 +96,8 @@ while True:
         ###### END OF STEREO CAMERA & SETTINGS ######
 
         
+
+
         ###### PRINT INTO COMMAND PROMPT ######
 
         labelL = resultLR.pandas().xyxy[0] # (Left Camera)
@@ -92,12 +107,17 @@ while True:
         resultLR.print()
 
         if len(labelL) and len(labelR):
-            print("\n\nDetection on Left Camera: ")
-            print(labelL)
-            print("\nDetection on Right Camera: ")
-            print(labelR)
 
             if len(labelL) == len(labelR):
+                for i in range(len(labelR)):
+                    labelL.at[i, 'name'] = labelL.iloc[i]['name'] + str(i)
+                    labelR.at[i, 'name'] = labelR.iloc[i]['name'] + str(i)
+                
+                print("\n\nDetection on Left Camera: ")
+                print(labelL)
+                print("\nDetection on Right Camera: ")
+                print(labelR)
+
                 id = 0
                 while id < len(labelL):
                     xl, yl, wl, hl = convertBbox(labelL.iloc[id]['xmin'], labelL.iloc[id]['ymin'], labelL.iloc[id]['xmax'], labelL.iloc[id]['ymax'])
@@ -136,6 +156,9 @@ while True:
             resultImgL, resultImgR = errorDetection("No detection on left/right camera!", resized1, resized2)
 
         ###### END OF PRINT TO COMMAND ######
+
+
+
 
         # Show camera in realtime
         cv2.imshow("Left Camera", resultImgL)
