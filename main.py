@@ -114,6 +114,7 @@ while True:
 
         if len(labelL) and len(labelR):
             if len(labelL) == len(labelR):
+                # Add index into result name
                 for i in range(len(labelR)):
                     labelL.at[i, 'name'] = labelL.iloc[i]['name'] + str(i)
                     labelR.at[i, 'name'] = labelR.iloc[i]['name'] + str(i)
@@ -128,7 +129,21 @@ while True:
                     xl, yl, wl, hl = convertBbox(labelL.iloc[id]['xmin'], labelL.iloc[id]['ymin'], labelL.iloc[id]['xmax'], labelL.iloc[id]['ymax'])
                     xr, yr, wr, hr = convertBbox(labelR.iloc[id]['xmin'], labelR.iloc[id]['ymin'], labelR.iloc[id]['xmax'], labelR.iloc[id]['ymax'])
 
-                    if labelL.iloc[id]['name'] == labelR.iloc[id]['name']:
+                    if dataJson['cameraConfig']['blockDiffClass']:
+                        # If two class from cameras are not same then break
+                        if labelL.iloc[id]['name'] == labelR.iloc[id]['name']:
+                            print("\n\nx1 for left camera = " + str(xl))
+                            print("x2 for right camera = " + str(xr))
+
+                            # Result from Distance Measurement
+                            distance = stereoscopicMeasurement(xl, xr, dim[0], dataJson['cameraConfig']['baseline'], dataJson['cameraConfig']['fieldOfView'])
+
+                            classes.append(labelL.iloc[id]['name'])
+                            distances.append(distance)
+                        else:
+                            resultImgL, resultImgR = errorDetection("Class Left & Right is not same!", resized1, resized2)
+                            break
+                    else:
                         print("\n\nx1 for left camera = " + str(xl))
                         print("x2 for right camera = " + str(xr))
 
@@ -137,9 +152,7 @@ while True:
 
                         classes.append(labelL.iloc[id]['name'])
                         distances.append(distance)
-                    else:
-                        resultImgL, resultImgR = errorDetection("Class Left & Right is not same!", resized1, resized2)
-                        break
+
                     id += 1
 
                 if len(classes):
@@ -167,17 +180,20 @@ while True:
 
         ###### SHOW CAMERAS IN REALTIME ######
 
-        # Combine two frame into one
-        alpha = 0.5
-        beta = (1.0 - alpha)
-        combineImg = cv2.addWeighted(resultImgR, alpha, resultImgL, beta, 0.0)
-        cv2.imshow("Combined Cameras", combineImg)
-
-        # cv2.imshow("Left Camera", resultImgL)
-        # cv2.imshow("Right Camera", resultImgR)
+        if dataJson['cameraConfig']['combinedCamera']:
+            # Combine two frame into one
+            alpha = 0.5
+            beta = (1.0 - alpha)
+            combineImg = cv2.addWeighted(resultImgR, alpha, resultImgL, beta, 0.0)
+            cv2.imshow("Combined Cameras", combineImg)
+        else:
+            cv2.imshow("Left Camera", resultImgL)
+            cv2.imshow("Right Camera", resultImgR)
 
         ###### END OF SHOW CAMERAS IN REALTIME ######
 
+        
+        
         # Key to exit
         if key == ord('q') or key == ord('Q'):
             print("\n\nExited!")
