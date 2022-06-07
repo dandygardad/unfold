@@ -110,8 +110,7 @@ while True:
         labelL = resultLR.pandas().xyxy[0] # (Left Camera)
         labelR = resultLR.pandas().xyxy[1]  # (Right Camera)
 
-        print("\n--------------------------------------------\n")
-        resultLR.print()
+        print("\n--------------------------------------------")
 
         if len(labelL) and len(labelR):
             if len(labelL) == len(labelR):
@@ -119,7 +118,7 @@ while True:
                     labelL.at[i, 'name'] = labelL.iloc[i]['name'] + str(i)
                     labelR.at[i, 'name'] = labelR.iloc[i]['name'] + str(i)
                 
-                print("\n\nDetection on Left Camera: ")
+                print("\nDetection on Left Camera: ")
                 print(labelL)
                 print("\nDetection on Right Camera: ")
                 print(labelR)
@@ -166,12 +165,21 @@ while True:
 
 
 
-        # Show camera in realtime
-        cv2.imshow("Left Camera", resultImgL)
-        cv2.imshow("Right Camera", resultImgR)
+        ###### SHOW CAMERAS IN REALTIME ######
+
+        # Combine two frame into one
+        alpha = 0.5
+        beta = (1.0 - alpha)
+        combineImg = cv2.addWeighted(resultImgR, alpha, resultImgL, beta, 0.0)
+        cv2.imshow("Combined Cameras", combineImg)
+
+        # cv2.imshow("Left Camera", resultImgL)
+        # cv2.imshow("Right Camera", resultImgR)
+
+        ###### END OF SHOW CAMERAS IN REALTIME ######
 
         # Key to exit
-        if key == ord('q'):
+        if key == ord('q') or key == ord('Q'):
             print("\n\nExited!")
             break
 
