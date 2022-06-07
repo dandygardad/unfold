@@ -29,6 +29,16 @@ print("\n== GENERATE STEREO MAP FOR UNDISTORT AND RECTIFY STEREO CAMERA ==\n``un
 # Termination criteria
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
+def matrixValues(cam_matrix, img_dim, apertureWidth=0, apertureHeight=0):
+    fov_x, fov_y, focal_len, _, _ = cv2.calibrationMatrixValues(cam_matrix, img_dim, apertureWidth, apertureHeight)
+    print("FOV x: " + str(fov_x))
+    print("FOV y: " + str(fov_y))
+    print("Focal Length: " + str(focal_len))
+
+def manualFov(cam_matrix, dim):
+    fov_x = np.rad2deg(2 * np.arctan2(dim[0], 2 * cam_matrix[0][0]))
+    print("FOV x: " + str(fov_x))
+
 # Function to camera calibration
 def cameraCalibration(pathLeft, pathRight, squareSize, chessWidth=9, chessHeight=6):
     # FIND CHESSBOARD CORNERS (OBJECT POINTS AND IMAGE POINTS)
@@ -88,11 +98,17 @@ def cameraCalibration(pathLeft, pathRight, squareSize, chessWidth=9, chessHeight
     # CALIBRATION (after we get obj points and image points)
     retL, cameraMatrixL, distL, rvecsL, tvecsL = cv2.calibrateCamera(objpoints, imgpointsL, dim, None, None)
     print("RMSE Left Camera: " + str(retL))
+
+    # Get field of view and focal length
+    manualFov(cameraMatrixL, dim)
+    # matrixValues(cameraMatrixL, dim)
     heightL, widthL, channelsL = imgL.shape
     newCameraMatrixL, roi_L = cv2.getOptimalNewCameraMatrix(cameraMatrixL, distL, (widthL, heightL), 1, (widthL, heightL))
 
     retR, cameraMatrixR, distR, rvecsR, tvecsR = cv2.calibrateCamera(objpoints, imgpointsR, dim, None, None)
-    print("RMSE Right Camera: " + str(retR))
+    print("\nRMSE Right Camera: " + str(retR))
+    
+    # Get field of view and focal length
     heightR, widthR, channelsR = imgR.shape
     newCameraMatrixR, roi_R = cv2.getOptimalNewCameraMatrix(cameraMatrixR, distR, (widthR, heightR), 1, (widthR, heightR))
 
