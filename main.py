@@ -9,7 +9,7 @@ import json
 
 from helper.general import unfoldHeader, errorMessage, errorDetection
 from helper.load import resizedStereoCamera, stereoCamera, destroySession, stereoCalibrated
-from helper.distance import convertBbox, stereoscopicMeasurementV1, stereoscopicMeasurementV2, bboxLabelDistance
+from helper.distance import convertBbox, stereoscopicMeasurement, bboxLabelDistance
 
 
 
@@ -64,6 +64,8 @@ while True:
     classes = list()
     distances = list()
     try:
+        ###### STEREO CAMERA & SETTINGS ######
+
         # Load stereo camera
         resized1, resized2, resizedGrayL, resizedGrayR, key = resizedStereoCamera(camL, camR, stereoMapL_x, stereoMapL_y, stereoMapR_x, stereoMapR_y, dim)
         
@@ -76,12 +78,16 @@ while True:
             
 
         # Load frame to model
-        resultLR = model([resizedGrayL, resizedGrayR])
+        resultLR = model([resizedGrayL, resizedGrayR], augment=True)
+
+        ###### END OF STEREO CAMERA & SETTINGS ######
+
+        
+        ###### PRINT INTO COMMAND PROMPT ######
 
         labelL = resultLR.pandas().xyxy[0] # (Left Camera)
         labelR = resultLR.pandas().xyxy[1]  # (Right Camera)
 
-        # Print into command prompt
         print("\n--------------------------------------------\n")
         resultLR.print()
 
@@ -102,8 +108,7 @@ while True:
                         print("x2 for right camera = " + str(xr))
 
                         # Result from Distance Measurement
-                        distance = stereoscopicMeasurementV1(xl, xr, dim[0], dataJson['cameraConfig']['baseline'], dataJson['cameraConfig']['fieldOfView'])
-                        # distance = stereoscopicMeasurementV2(xl, xr, dim[0], dataJson['cameraConfig']['baseline'], dataJson['cameraConfig']['fieldOfView'])
+                        distance = stereoscopicMeasurement(xl, xr, dim[0], dataJson['cameraConfig']['baseline'], dataJson['cameraConfig']['fieldOfView'])
 
                         classes.append(labelL.iloc[id]['name'])
                         distances.append(distance)
@@ -130,10 +135,11 @@ while True:
         else:
             resultImgL, resultImgR = errorDetection("No detection on left/right camera!", resized1, resized2)
 
-        # Show realtime
+        ###### END OF PRINT TO COMMAND ######
+
+        # Show camera in realtime
         cv2.imshow("Left Camera", resultImgL)
         cv2.imshow("Right Camera", resultImgR)
-
 
         # Key to exit
         if key == ord('q'):

@@ -49,7 +49,7 @@ width = width taken from image dimension (px)
 b = baseline (actual distance between two cameras) (m)
 fov = field of view/lens view angle (two cameras must be of the same model)
 """
-def stereoscopicMeasurementV1(leftX, rightX, width, b, fov):
+def stereoscopicMeasurement(leftX, rightX, width, b, fov):
     baselineWidth = float(b) * float(width)
     disparity = abs(float(leftX) - float(rightX))
     fieldOfView = float(math.tan(fov / 2))
