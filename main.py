@@ -20,6 +20,7 @@ unfoldHeader()
 
 
 ###### LOAD JSON ######
+
 f = open('changeData.json')
 dataJson = json.load(f)
 f.close()
@@ -36,12 +37,14 @@ if dataJson['cameraConfig']['conf']:
     conf_custom = dataJson['cameraConfig']['conf']
 else:
     conf_custom = 0
+
 ###### END OF LOAD JSON ######
 
 
 
 
 ###### LOAD STEREO CAMERA ######
+
 print("=== LOAD STEREO CAMERA ===")
 inputL = input("Masukkan input kamera kiri (0/1/2/3/..): ")
 inputR = input("Masukkan input kamera kanan (0/1/2/3/..): ")
@@ -49,26 +52,31 @@ inputR = input("Masukkan input kamera kanan (0/1/2/3/..): ")
 if not inputL.isnumeric() & inputR.isnumeric():
     errorMessage("Input source camera is not numeric!")
 
-dim = (640, 480)
-camL, camR = stereoCamera(inputL, inputR, dim)
+camL, camR, widthL, heightL, widthR, heightR = stereoCamera(inputL, inputR)
+# Assume two cameras are same model
+dim = (widthL, heightL)
+
 ###### END OF LOAD STEREO CAMERA ######
 
 
 
 
 ###### LOAD YOLOv5 ######
+
 print("\n\n=== RUNNING YOLOv5 ===")
 try:
     model = torch.hub.load('yolov5-detect', 'custom', path=model_custom, source='local')
 except Exception as e:
     print(e)
     errorMessage("Cannot load model, please check 'torch.hub.load' function!")
+
 ###### END OF LOAD YOLOv5 ######
 
 
 
 
-# RUN YOLOv5 TO OpenCV
+###### RUN YOLOv5 TO OpenCV ######
+
 print("\n\n=== PUT YOLOv5 INTO STEREO CAMERA ===")
 print("=== APPLY DISTANCE MEASUREMENT ===")
 stereoMapL_x, stereoMapL_y, stereoMapR_x, stereoMapR_y = stereoCalibrated()
@@ -83,7 +91,6 @@ while True:
         resized1, resized2, resizedGrayL, resizedGrayR, key = resizedStereoCamera(camL, camR, stereoMapL_x, stereoMapL_y, stereoMapR_x, stereoMapR_y, dim)
         
         # Inference Settings
-        # EDIT THIS FOR DETECTION SETTINGS
         model.conf = conf_custom
 
         if dataJson['cameraConfig']['customModel'] != False:
@@ -107,7 +114,6 @@ while True:
         resultLR.print()
 
         if len(labelL) and len(labelR):
-
             if len(labelL) == len(labelR):
                 for i in range(len(labelR)):
                     labelL.at[i, 'name'] = labelL.iloc[i]['name'] + str(i)
@@ -172,6 +178,10 @@ while True:
     except KeyboardInterrupt:
         print("\n\nExited!")
         break
+
+###### END OF RUN YOLOv5 TO OpenCV ######
+
+
 
 # Destroy Session
 destroySession(camL, camR)

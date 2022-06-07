@@ -22,6 +22,10 @@ def errorMessage(msg):
 
 # Check original dimension
 def originalDimCheck(L, R):
+    if L.get(cv2.CAP_PROP_FRAME_WIDTH) != R.get(cv2.CAP_PROP_FRAME_WIDTH) and L.get(cv2.CAP_PROP_FRAME_HEIGHT) != R.get(cv2.CAP_PROP_FRAME_HEIGHT):
+        errorDetection("Dimensions from 2 camera are not same!", L, R)
+        quit()
+
     return L.get(cv2.CAP_PROP_FRAME_WIDTH), L.get(cv2.CAP_PROP_FRAME_HEIGHT), R.get(cv2.CAP_PROP_FRAME_WIDTH), R.get(cv2.CAP_PROP_FRAME_HEIGHT)
 
 # Template error related from detection
