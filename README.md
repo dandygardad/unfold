@@ -16,6 +16,12 @@ cd unfold
 pip install -r requirements.txt
 ```
 
+Rename `changeData_example.json` into `changeData.json` and edit the config.
+
+```
+python main.py
+```
+
 ## Features
 - Camera Calibration & Rectify
 - Detect with Stereo YOLOv5 (Mini-version)
