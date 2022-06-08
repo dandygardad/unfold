@@ -6,7 +6,7 @@ import os
 from helper.general import originalDimCheck, errorMessage
 
 # Load Stereo Camera
-def stereoCamera(L, R, resized):
+def stereoCamera(L, R):
     camL = cv2.VideoCapture(int(L), cv2.CAP_DSHOW)
     camR = cv2.VideoCapture(int(R), cv2.CAP_DSHOW)
 
@@ -20,15 +20,9 @@ def stereoCamera(L, R, resized):
     print("\nVideo 1 original dimension: " + str(widthL) + ' ' + str(heightL))
     print("Video 2 original dimension: " + str(widthR) + ' ' + str(heightR))
 
-    if widthL == resized[0] and heightL == resized[1] and widthR == resized[0] and heightR == resized[1]:
-        print("\nINGFO: Two cameras have the same dimensions, no need to resized!")
-    else:
-        # Show resized dimension
-        print("\nResized to: " + str(resized))
-
     print("\nSuccess: Stereo Camera successfully loaded!")
 
-    return camL, camR
+    return camL, camR, widthL, heightL, widthR, heightR
 
 def stereoCalibrated():
     # Take camera parameters
@@ -49,11 +43,6 @@ def stereoCalibrated():
 def resizedStereoCamera(L, R, mapLx, mapLy, mapRx, mapRy, resize):
     retL, frameL = L.read()
     retR, frameR = R.read()
-
-    if not frameL.shape[1] == resize[0] and frameL.shape[0] == resize[1]:
-        # Resized input based from dimension
-        frameL = cv2.resize(frameL, resize, interpolation=cv2.INTER_AREA)
-        frameR = cv2.resize(frameR, resize, interpolation=cv2.INTER_AREA)
 
     # Remap frame based from stereoMap
     frameL = cv2.remap(frameL, mapLx, mapLy, cv2.INTER_LANCZOS4, cv2.BORDER_CONSTANT, 0)
