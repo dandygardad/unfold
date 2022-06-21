@@ -16,7 +16,7 @@
     },
     "rmse":{
         "mode": false,
-        "setDistance": [5, 10],
+        "setDistance": 5,
         "maxFramesPerDist": 50
     }
 }
