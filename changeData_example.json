@@ -10,5 +10,9 @@
         "conf": 0.4,
         "combinedCamera": true,
         "blockDiffClass": true
+    },
+    "rmse":{
+        "mode": false,
+        "setDistance": 5
     }
 }
