@@ -165,8 +165,6 @@ while True:
                                 if not labelL.iloc[id]['name'] in result_rmse:
                                     result_rmse[labelL.iloc[id]['name']] = list()
                                 result_rmse[labelL.iloc[id]['name']].append(distance)
-                                initial_frame += 1
-
                         else:
                             resultImgL, resultImgR = errorDetection("Class Left & Right is not same!", resized1, resized2)
                             break
@@ -185,9 +183,9 @@ while True:
                             if not labelL.iloc[id]['name'] in result_rmse:
                                 result_rmse[labelL.iloc[id]['name']] = list()
                             result_rmse[labelL.iloc[id]['name']].append(distance)
-                            initial_frame += 1
 
                     id += 1
+                initial_frame += 1
 
                 if len(classes):
                     data = {
