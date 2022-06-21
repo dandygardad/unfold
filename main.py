@@ -13,8 +13,6 @@ from helper.distance import convertBbox, stereoscopicMeasurement, bboxLabelDista
 
 
 
-# ``unfold`` Header
-unfoldHeader()
 
 
 
@@ -24,6 +22,9 @@ unfoldHeader()
 f = open('changeData.json')
 dataJson = json.load(f)
 f.close()
+
+# ``unfold`` Header
+unfoldHeader(dataJson['header']['cls'])
 
 # Load data from json
 if dataJson['cameraConfig']['model']:
@@ -37,6 +38,15 @@ if dataJson['cameraConfig']['conf']:
     conf_custom = dataJson['cameraConfig']['conf']
 else:
     conf_custom = 0
+
+if dataJson['rmse']['mode']:
+    mode_rmse = dataJson['rmse']['mode']
+    dist_rmse = dataJson['rmse']['setDistance']
+    frame_rmse = dataJson['rmse']['maxFramesPerDist']
+    dist_list = list()
+    num_sublist = 0
+    frames = 0
+    print("INGFO: Mode RMSE ON!")
 
 ###### END OF LOAD JSON ######
 
@@ -137,7 +147,6 @@ while True:
 
                             # Result from Distance Measurement
                             distance = stereoscopicMeasurement(xl, xr, dim[0], dataJson['cameraConfig']['baseline'], dataJson['cameraConfig']['fieldOfView'])
-
                             classes.append(labelL.iloc[id]['name'])
                             distances.append(distance)
                         else:

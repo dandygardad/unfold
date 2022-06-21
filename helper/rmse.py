@@ -3,6 +3,3 @@
 
 # def rmse_measure():
 
-
-# def apply_rmse():
-

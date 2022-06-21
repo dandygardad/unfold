@@ -1,4 +1,7 @@
 {
+    "header": {
+        "cls": true
+    },
     "stereoCalibration": {
         "squareSize": 25
     },
@@ -13,6 +16,7 @@
     },
     "rmse":{
         "mode": false,
-        "setDistance": 5
+        "setDistance": [5, 10],
+        "maxFramesPerDist": 50
     }
 }
