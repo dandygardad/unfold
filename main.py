@@ -177,6 +177,7 @@ while True:
 
                         classes.append(labelL.iloc[id]['name'])
                         distances.append(distance)
+
                         # Append distance into RMSE
                         if mode_rmse:
                             if not labelL.iloc[id]['name'] in result_rmse:
