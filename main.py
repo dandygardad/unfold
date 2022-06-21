@@ -49,6 +49,8 @@ if dataJson['rmse']['mode']:
     distances_rmse = list()
 
     print("INGFO: Mode RMSE ON!\n")
+else:
+    mode_rmse = False
 
 ###### END OF LOAD JSON ######
 
