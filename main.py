@@ -44,7 +44,6 @@ if dataJson['rmse']['mode']:
     mode_rmse = dataJson['rmse']['mode']
     dist_rmse = dataJson['rmse']['setDistance']
     frame_rmse = dataJson['rmse']['maxFramesPerDist']
-    initial_frame = 0
     result_rmse = {}
     distances_rmse = list()
 
@@ -94,6 +93,7 @@ except Exception as e:
 print("\n\n=== PUT YOLOv5 INTO STEREO CAMERA ===")
 print("=== APPLY DISTANCE MEASUREMENT ===")
 stereoMapL_x, stereoMapL_y, stereoMapR_x, stereoMapR_y = stereoCalibrated()
+initial_frame = 0
 
 while True:
     if mode_rmse:
