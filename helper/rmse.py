@@ -4,6 +4,7 @@
 import os
 import json
 import collections
+import math
 
 # Save into json
 def saveData(name, data):
@@ -29,6 +30,18 @@ def frequencyValue(arr):
     
     for key, value in elem_count.most_common(1):
         return key, value
+
+# Measure RMSE
+def measureRMSE(arr, actual_arr):
+    rmse = 0
+
+    for i in range(len(arr)):
+        subsActForc = (float(actual_arr[i]) - float(arr[i]))
+        rmse = rmse + (math.pow((subsActForc), 2))
+
+    rmse = rmse / len(arr)
+
+    return math.sqrt(rmse)
 
 # Template error related from RMSE
 def errorMessage(msg):

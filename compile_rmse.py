@@ -4,7 +4,7 @@
 import os
 import json
 
-from helper.rmse import errorMessage, compareList, frequencyValue
+from helper.rmse import *
 
 
 
@@ -76,3 +76,31 @@ for i in range(len(f)):
         data[actual_dist[i]] = {**data[actual_dist[0]], key: value}
 
 ##### END OF COMPARE CLASSES START FROM FIRST JSON #####
+
+
+
+
+##### MEASURE RMSE #####
+
+result_rmse = dict()
+forc_rmse = dict()
+
+# Fetch all class
+for dist in data:
+    for key in data[dist]:
+        result_rmse[key] = 0
+        forc_rmse[key] = list()
+
+for dist in data:
+    for key in data[dist]:
+        forc_rmse[key].append(data[dist][key])
+
+for arr in forc_rmse:
+    rmse = measureRMSE(forc_rmse[arr], actual_dist)
+    result_rmse[arr] = rmse
+
+# Show result
+print("\n== RESULT OF RMSE (Root Mean Squared Error) ==\n``unfold`` by dandy garda\n")
+for key in result_rmse:
+    print(f"{key} : {result_rmse[key]}")
+##### END OF MEASURE RMSE #####
