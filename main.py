@@ -6,6 +6,7 @@ import pandas as pd
 import cv2
 import torch
 import json
+import os
 
 from helper.general import unfoldHeader, errorMessage, errorDetection
 from helper.load import resizedStereoCamera, stereoCamera, destroySession, stereoCalibrated
@@ -51,6 +52,16 @@ if dataJson['rmse']['mode']:
 else:
     mode_rmse = False
 
+mode_capture = dataJson['capture']['mode']
+
+if mode_capture == 'video' and dataJson['capture']['cam1'] and dataJson['capture']['cam2']:
+    cam1_capture = dataJson['capture']['cam1']
+    cam2_capture = dataJson['capture']['cam2']
+elif mode_capture == 'video':
+    _, _ = errorMessage("Cam 1/Cam 2 source video contains false!")
+    quit()
+
+
 ###### END OF LOAD JSON ######
 
 
@@ -58,14 +69,21 @@ else:
 
 ###### LOAD STEREO CAMERA ######
 
-print("=== LOAD STEREO CAMERA ===")
-inputL = input("Masukkan input kamera kiri (0/1/2/3/..): ")
-inputR = input("Masukkan input kamera kanan (0/1/2/3/..): ")
+if mode_capture == 'video':
+    print("=== LOAD VIDEO ===")
+    inputL = os.getcwd() + '\\video\\' + cam1_capture
+    inputR = os.getcwd() + '\\video\\' + cam2_capture
+    camL, camR, widthL, heightL, widthR, heightR = stereoCamera(inputL, inputR, False)
+else:
+    print("=== LOAD STEREO CAMERA ===")
+    inputL = input("Masukkan input kamera kiri (0/1/2/3/..): ")
+    inputR = input("Masukkan input kamera kanan (0/1/2/3/..): ")
 
-if not inputL.isnumeric() & inputR.isnumeric():
-    errorMessage("Input source camera is not numeric!")
+    if not inputL.isnumeric() & inputR.isnumeric():
+        errorMessage("Input source camera is not numeric!")
 
-camL, camR, widthL, heightL, widthR, heightR = stereoCamera(inputL, inputR)
+    camL, camR, widthL, heightL, widthR, heightR = stereoCamera(int(inputL), int(inputR), True)
+    
 # Assume two cameras are same model
 dim = (widthL, heightL)
 
@@ -108,8 +126,11 @@ while True:
         ###### STEREO CAMERA & SETTINGS ######
 
         # Load stereo camera
-        resized1, resized2, resizedGrayL, resizedGrayR, key = resizedStereoCamera(camL, camR, stereoMapL_x, stereoMapL_y, stereoMapR_x, stereoMapR_y, dim)
+        retL, retR, resized1, resized2, resizedGrayL, resizedGrayR, key = resizedStereoCamera(camL, camR, stereoMapL_x, stereoMapL_y, stereoMapR_x, stereoMapR_y, dim)
         
+        if not retL & retR:
+            break
+
         # Inference Settings
         model.conf = conf_custom
 

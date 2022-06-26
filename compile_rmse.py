@@ -103,4 +103,5 @@ for arr in forc_rmse:
 print("\n== RESULT OF RMSE (Root Mean Squared Error) ==\n``unfold`` by dandy garda\n")
 for key in result_rmse:
     print(f"{key} : {result_rmse[key]}")
+    
 ##### END OF MEASURE RMSE #####
