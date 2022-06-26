@@ -3,6 +3,7 @@
 
 import os
 import json
+import collections
 
 # Save into json
 def saveData(name, data):
@@ -11,6 +12,23 @@ def saveData(name, data):
     with open("./result-rmse/"+ str(name) +".json", 'w+') as result:
         json.dump(data, result)
         print("\nSaved in " + './result-rmse/' + str(name) + '.json', end="\n")
+
+# Compare class/list between json
+def compareList(l1, l2):
+    sorted(l1)
+    sorted(l2)
+    if(l1 == l2):
+        return True
+    else:
+        return False
+
+# Find frequency from array using python collections
+def frequencyValue(arr):
+    convertRound = map(lambda x: round(x, 2), arr)
+    elem_count = collections.Counter(convertRound)
+    
+    for key, value in elem_count.most_common(1):
+        return key, value
 
 # Template error related from RMSE
 def errorMessage(msg):

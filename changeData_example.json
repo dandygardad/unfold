@@ -17,6 +17,7 @@
     "rmse":{
         "mode": false,
         "setDistance": 5,
-        "maxFramesPerDist": 50
+        "maxFramesPerDist": 50,
+        "strictClass": true
     }
 }
