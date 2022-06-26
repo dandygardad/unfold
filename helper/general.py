@@ -5,8 +5,11 @@ import cv2
 import os
 
 # Header template
-def unfoldHeader():
-    os.system('cls')
+def unfoldHeader(cls):
+    if cls:
+        os.system('cls')
+    else:
+        print('\n')
     print('\033[92m``unfold``\033[0m v.1.0.0')
     print('\033[1mA Python project for measuring distance between two ships with Stereo Camera.\033[0m')
     print('\n\033[1mmade by Dandy Garda\033[0m')

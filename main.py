@@ -10,11 +10,10 @@ import json
 from helper.general import unfoldHeader, errorMessage, errorDetection
 from helper.load import resizedStereoCamera, stereoCamera, destroySession, stereoCalibrated
 from helper.distance import convertBbox, stereoscopicMeasurement, bboxLabelDistance
+from helper.rmse import saveData
 
 
 
-# ``unfold`` Header
-unfoldHeader()
 
 
 
@@ -24,6 +23,9 @@ unfoldHeader()
 f = open('changeData.json')
 dataJson = json.load(f)
 f.close()
+
+# ``unfold`` Header
+unfoldHeader(dataJson['header']['cls'])
 
 # Load data from json
 if dataJson['cameraConfig']['model']:
@@ -37,6 +39,17 @@ if dataJson['cameraConfig']['conf']:
     conf_custom = dataJson['cameraConfig']['conf']
 else:
     conf_custom = 0
+
+if dataJson['rmse']['mode']:
+    mode_rmse = dataJson['rmse']['mode']
+    dist_rmse = dataJson['rmse']['setDistance']
+    frame_rmse = dataJson['rmse']['maxFramesPerDist']
+    result_rmse = {}
+    distances_rmse = list()
+
+    print("INGFO: Mode RMSE ON!\n")
+else:
+    mode_rmse = False
 
 ###### END OF LOAD JSON ######
 
@@ -80,8 +93,15 @@ except Exception as e:
 print("\n\n=== PUT YOLOv5 INTO STEREO CAMERA ===")
 print("=== APPLY DISTANCE MEASUREMENT ===")
 stereoMapL_x, stereoMapL_y, stereoMapR_x, stereoMapR_y = stereoCalibrated()
+initial_frame = 0
 
 while True:
+    if mode_rmse:
+        print("\nFrame: " + str(initial_frame))
+        if initial_frame == frame_rmse:
+            saveData(dist_rmse, result_rmse)
+            break
+
     classes = list()
     distances = list()
     try:
@@ -137,9 +157,14 @@ while True:
 
                             # Result from Distance Measurement
                             distance = stereoscopicMeasurement(xl, xr, dim[0], dataJson['cameraConfig']['baseline'], dataJson['cameraConfig']['fieldOfView'])
-
                             classes.append(labelL.iloc[id]['name'])
                             distances.append(distance)
+
+                            # Append distance into RMSE
+                            if mode_rmse:
+                                if not labelL.iloc[id]['name'] in result_rmse:
+                                    result_rmse[labelL.iloc[id]['name']] = list()
+                                result_rmse[labelL.iloc[id]['name']].append(distance)
                         else:
                             resultImgL, resultImgR = errorDetection("Class Left & Right is not same!", resized1, resized2)
                             break
@@ -153,13 +178,21 @@ while True:
                         classes.append(labelL.iloc[id]['name'])
                         distances.append(distance)
 
+                        # Append distance into RMSE
+                        if mode_rmse:
+                            if not labelL.iloc[id]['name'] in result_rmse:
+                                result_rmse[labelL.iloc[id]['name']] = list()
+                            result_rmse[labelL.iloc[id]['name']].append(distance)
+
                     id += 1
+                initial_frame += 1
 
                 if len(classes):
                     data = {
                         'class': classes,
                         'distance': distances
                     }
+
                     data = pd.DataFrame(data)
                     
                     print("\nDistance Measurement:")
@@ -193,13 +226,17 @@ while True:
         ###### END OF SHOW CAMERAS IN REALTIME ######
 
         
-        
+
         # Key to exit
         if key == ord('q') or key == ord('Q'):
+            if mode_rmse:
+                saveData(dist_rmse, result_rmse)
             print("\n\nExited!")
             break
 
     except KeyboardInterrupt:
+        if mode_rmse:
+            saveData(dist_rmse, result_rmse)
         print("\n\nExited!")
         break
 

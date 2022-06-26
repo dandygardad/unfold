@@ -1,4 +1,7 @@
 {
+    "header": {
+        "cls": true
+    },
     "stereoCalibration": {
         "squareSize": 25
     },
@@ -10,5 +13,11 @@
         "conf": 0.4,
         "combinedCamera": true,
         "blockDiffClass": true
+    },
+    "rmse":{
+        "mode": false,
+        "setDistance": 5,
+        "maxFramesPerDist": 50,
+        "strictClass": true
     }
 }

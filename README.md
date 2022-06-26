@@ -26,6 +26,7 @@ python main.py
 - Camera Calibration & Rectify
 - Detect with Stereo YOLOv5 (Mini-version)
 - Distance Measurement *\*not yet tested*
+- Root Mean Squared Error *\*not yet tested*
 
 ---
 

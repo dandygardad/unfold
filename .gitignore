@@ -133,3 +133,5 @@ dmypy.json
 calibration/images/*
 stereoMap.xml
 changeData.json
+result-rmse
+temp_file
