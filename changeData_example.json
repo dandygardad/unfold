@@ -5,6 +5,11 @@
     "stereoCalibration": {
         "squareSize": 25
     },
+    "capture": {
+        "mode": "live",
+        "cam1": false,
+        "cam2": false
+    },
     "cameraConfig":{
         "baseline": 0,
         "fieldOfView": 0,
