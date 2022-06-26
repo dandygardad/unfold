@@ -23,6 +23,7 @@ python main.py
 ```
 
 ## Features
+- Live/Video source input
 - Camera Calibration & Rectify
 - Detect with Stereo YOLOv5 (Mini-version)
 - Distance Measurement *\*not yet tested*
