@@ -6,13 +6,16 @@ import os
 from helper.general import originalDimCheck, errorMessage
 
 # Load Stereo Camera
-def stereoCamera(L, R):
-    camL = cv2.VideoCapture(int(L), cv2.CAP_DSHOW)
-    camR = cv2.VideoCapture(int(R), cv2.CAP_DSHOW)
+def stereoCamera(L, R, dshow):
+    if dshow:
+        camL = cv2.VideoCapture(L, cv2.CAP_DSHOW)
+        camR = cv2.VideoCapture(R, cv2.CAP_DSHOW)
+    else:
+        camL = cv2.VideoCapture(L)
+        camR = cv2.VideoCapture(R)
 
     if not camL.isOpened() & camR.isOpened():
         errorMessage("Cannot open webcam!")
-
 
     # Show original dimension
     widthL, heightL, widthR, heightR = originalDimCheck(camL, camR)
@@ -44,21 +47,21 @@ def resizedStereoCamera(L, R, mapLx, mapLy, mapRx, mapRy, resize):
     retL, frameL = L.read()
     retR, frameR = R.read()
 
-    # Remap frame based from stereoMap
-    frameL = cv2.remap(frameL, mapLx, mapLy, cv2.INTER_LANCZOS4, cv2.BORDER_CONSTANT, 0)
-    frameR = cv2.remap(frameR, mapRx, mapRy, cv2.INTER_LANCZOS4, cv2.BORDER_CONSTANT, 0)
-    
-    # Convert to grayscale
-    frameGrayL = cv2.cvtColor(frameL, cv2.COLOR_BGR2GRAY)
-    frameGrayR = cv2.cvtColor(frameR, cv2.COLOR_BGR2GRAY)
+    if retL & retR:
+        # Remap frame based from stereoMap
+        frameL = cv2.remap(frameL, mapLx, mapLy, cv2.INTER_LANCZOS4, cv2.BORDER_CONSTANT, 0)
+        frameR = cv2.remap(frameR, mapRx, mapRy, cv2.INTER_LANCZOS4, cv2.BORDER_CONSTANT, 0)
+        
+        # Convert to grayscale
+        frameGrayL = cv2.cvtColor(frameL, cv2.COLOR_BGR2GRAY)
+        frameGrayR = cv2.cvtColor(frameR, cv2.COLOR_BGR2GRAY)
+    else:
+        return retL, retR, False, False, False, False, False
 
-    # If frame error then break
-    if not retL & retR:
-        errorMessage("Frame L/R got an error!")
 
     key = cv2.waitKey(1)
 
-    return frameL, frameR, frameGrayL, frameGrayR, key
+    return retL, retR, frameL, frameR, frameGrayL, frameGrayR, key
 
 def destroySession(L, R):
     L.release()
