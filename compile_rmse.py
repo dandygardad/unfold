@@ -3,6 +3,8 @@
 
 import os
 import json
+import pandas as pd
+import time
 
 from helper.rmse import *
 
@@ -103,5 +105,18 @@ for arr in forc_rmse:
 print("\n== RESULT OF RMSE (Root Mean Squared Error) ==\n``unfold`` by dandy garda\n")
 for key in result_rmse:
     print(f"{key} : {result_rmse[key]}")
-    
+
+# Export to csv and excel
+filename = time.time()
+if not os.path.exists(os.getcwd() + '\\result'):
+    os.makedirs('result')
+
+df = pd.DataFrame(result_rmse, index=list(range(len(result_rmse)-1)))
+
+df.to_csv(os.getcwd() + '/result/' + str(int(filename)) + '.csv')
+print("\nSaved result: " + os.getcwd() + '/result/'+ str(int(filename)) + '.csv')
+
+df.to_excel(os.getcwd() + '/result/' + str(int(filename)) + '.xlsx')
+print("Saved result: " + os.getcwd() + '/result/'+ str(int(filename)) + '.xlsx')
+
 ##### END OF MEASURE RMSE #####
