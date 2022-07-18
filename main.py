@@ -139,26 +139,47 @@ while True:
             
 
         # Load frame to model
-        resultLR = model([resizedGrayL, resizedGrayR], augment=True)
+        resultLR = model([resizedGrayL], augment=True)
 
         ###### END OF STEREO CAMERA & SETTINGS ######
 
-        
+
+
+
+        ###### MATCH TEMPLATE ######
+
+        labelL = resultLR.pandas().xyxy[0] # (Left Camera)
+        labelL_crop = resultLR.crop(save=False) # (Left Camera)
+        labelR = pd.DataFrame({})
+
+        for i in range(len(labelL)):
+            image = cv2.cvtColor(labelL_crop[i]['im'], cv2.COLOR_BGR2GRAY )
+            height, width = image.shape[::]
+            match = cv2.matchTemplate(resizedGrayR, image, cv2.TM_SQDIFF)
+            _, _, minloc, maxloc = cv2.minMaxLoc(match)
+            data = {
+                "xmin": int(minloc[0]),
+                "ymin": int(minloc[1]),
+                "xmax": int(minloc[0] + width),
+                "ymax": int(minloc[1] + height),
+                "confidence": labelL_crop[i]['conf'].item(),
+                "class": int(labelL_crop[i]['cls'].item()),
+                "name": labelL.iloc[i]['name']
+            }
+            labelR = pd.concat([labelR, pd.DataFrame(data, index=[i])]) 
+            
+        ###### END OF MATCH TEMPLATE ######
+
+
 
 
         ###### PRINT INTO COMMAND PROMPT ######
 
-        labelL = resultLR.pandas().xyxy[0] # (Left Camera)
-        labelR = resultLR.pandas().xyxy[1]  # (Right Camera)
-
         print("\n--------------------------------------------")
 
         if len(labelL) and len(labelR):
+            labelR = labelR.sort_values(by=['confidence'], ascending=False)  
             if len(labelL) == len(labelR):
-                # Add index into result name
-                for i in range(len(labelR)):
-                    labelL.at[i, 'name'] = labelL.iloc[i]['name'] + str(i)
-                    labelR.at[i, 'name'] = labelR.iloc[i]['name'] + str(i)
                 
                 print("\nDetection on Left Camera: ")
                 print(labelL)
