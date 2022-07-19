@@ -54,7 +54,7 @@ def stereoscopicMeasurement(leftX, rightX, width, b, fov):
     disparity = abs(float(leftX) - float(rightX))
     fieldOfView = float(math.tan(fov / 2))
 
-    print("Baseline x width: " + str(baselineWidth))
+    print("\nBaseline x width: " + str(baselineWidth))
     print("Disparity: " + str(disparity))
     print("Field of View: " + str(fieldOfView))
     

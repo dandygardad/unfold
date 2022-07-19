@@ -158,10 +158,10 @@ while True:
             match = cv2.matchTemplate(resizedGrayR, image, cv2.TM_SQDIFF)
             _, _, minloc, maxloc = cv2.minMaxLoc(match)
             data = {
-                "xmin": int(minloc[0]),
-                "ymin": int(minloc[1]),
-                "xmax": int(minloc[0] + width),
-                "ymax": int(minloc[1] + height),
+                "xmin": float(minloc[0]),
+                "ymin": float(minloc[1]),
+                "xmax": float(minloc[0] + width),
+                "ymax": float(minloc[1] + height),
                 "confidence": labelL_crop[i]['conf'].item(),
                 "class": int(labelL_crop[i]['cls'].item()),
                 "name": labelL.iloc[i]['name']
@@ -183,13 +183,13 @@ while True:
                 
                 print("\nDetection on Left Camera: ")
                 print(labelL)
-                print("\nDetection on Right Camera: ")
+                print("\nDetection on Right Camera (from template matching): ")
                 print(labelR)
 
                 id = 0
                 while id < len(labelL):
                     # Converting float into int for stability value
-                    xl, yl, wl, hl = convertBbox(int(labelL.iloc[id]['xmin']), int(labelL.iloc[id]['ymin']), int(labelL.iloc[id]['xmax']), int(labelL.iloc[id]['ymax']))
+                    xl, yl, wl, hl = convertBbox(round(labelL.iloc[id]['xmin'], dataJson['cameraConfig']['detectRound']), round(labelL.iloc[id]['ymin'], dataJson['cameraConfig']['detectRound']), round(labelL.iloc[id]['xmax'], dataJson['cameraConfig']['detectRound']), round(labelL.iloc[id]['ymax'], dataJson['cameraConfig']['detectRound']))
                     xr, yr, wr, hr = convertBbox(labelR.iloc[id]['xmin'], labelR.iloc[id]['ymin'], labelR.iloc[id]['xmax'], labelR.iloc[id]['ymax'])
 
                     if dataJson['cameraConfig']['blockDiffClass']:

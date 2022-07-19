@@ -17,7 +17,8 @@
         "model": false,
         "conf": 0.4,
         "combinedCamera": true,
-        "blockDiffClass": true
+        "blockDiffClass": true,
+        "detectRound": 0
     },
     "rmse":{
         "mode": false,
