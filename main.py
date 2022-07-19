@@ -149,11 +149,10 @@ while True:
         ###### MATCH TEMPLATE ######
 
         labelL = resultLR.pandas().xyxy[0] # (Left Camera)
-        labelL_crop = resultLR.crop(save=False) # (Left Camera)
         labelR = pd.DataFrame({})
 
         for i in range(len(labelL)):
-            image = cv2.cvtColor(labelL_crop[i]['im'], cv2.COLOR_BGR2GRAY )
+            image = resizedGrayL[int(labelL.iloc[i]['ymin']):int(labelL.iloc[i]['ymax']), int(labelL.iloc[i]['xmin']):int(labelL.iloc[i]['xmax'])]
             height, width = image.shape[::]
             match = cv2.matchTemplate(resizedGrayR, image, cv2.TM_SQDIFF)
             _, _, minloc, maxloc = cv2.minMaxLoc(match)
@@ -162,8 +161,8 @@ while True:
                 "ymin": float(minloc[1]),
                 "xmax": float(minloc[0] + width),
                 "ymax": float(minloc[1] + height),
-                "confidence": labelL_crop[i]['conf'].item(),
-                "class": int(labelL_crop[i]['cls'].item()),
+                "confidence": labelL.iloc[i]['confidence'],
+                "class": labelL.iloc[i]['class'],
                 "name": labelL.iloc[i]['name']
             }
             labelR = pd.concat([labelR, pd.DataFrame(data, index=[i])]) 
