@@ -100,13 +100,14 @@ def cameraCalibration(pathLeft, pathRight, squareSize, chessWidth=9, chessHeight
     print("RMSE Left Camera: " + str(retL))
 
     # Get field of view and focal length
-    manualFov(cameraMatrixL, dim)
-    # matrixValues(cameraMatrixL, dim)
+    # manualFov(cameraMatrixL, dim)
+    matrixValues(cameraMatrixL, dim)
     heightL, widthL, channelsL = imgL.shape
     newCameraMatrixL, roi_L = cv2.getOptimalNewCameraMatrix(cameraMatrixL, distL, (widthL, heightL), 1, (widthL, heightL))
 
     retR, cameraMatrixR, distR, rvecsR, tvecsR = cv2.calibrateCamera(objpoints, imgpointsR, dim, None, None)
     print("\nRMSE Right Camera: " + str(retR))
+    matrixValues(cameraMatrixR, dim)
     
     # Get field of view and focal length
     heightR, widthR, channelsR = imgR.shape
