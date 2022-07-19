@@ -167,8 +167,8 @@ while True:
 
                 id = 0
                 while id < len(labelL):
-                    xl, yl, wl, hl = convertBbox(labelL.iloc[id]['xmin'], labelL.iloc[id]['ymin'], labelL.iloc[id]['xmax'], labelL.iloc[id]['ymax'])
-                    xr, yr, wr, hr = convertBbox(labelR.iloc[id]['xmin'], labelR.iloc[id]['ymin'], labelR.iloc[id]['xmax'], labelR.iloc[id]['ymax'])
+                    xl, yl, wl, hl = convertBbox(int(labelL.iloc[id]['xmin']), int(labelL.iloc[id]['ymin']), int(labelL.iloc[id]['xmax']), int(labelL.iloc[id]['ymax']))
+                    xr, yr, wr, hr = convertBbox(int(labelR.iloc[id]['xmin']), int(labelR.iloc[id]['ymin']), int(labelR.iloc[id]['xmax']), int(labelR.iloc[id]['ymax']))
 
                     if dataJson['cameraConfig']['blockDiffClass']:
                         # If two class from cameras are not same then break
