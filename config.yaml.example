@@ -50,3 +50,4 @@ rmse:
   setDistance: 5   # Set distance for filename
   maxFramesPerDist: 50  # Many frames to detect
   strictClass: true   # Error if there's unbalanced classes when compile
+  distRound: 2   # Limit the value of distance

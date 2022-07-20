@@ -206,7 +206,7 @@ while True:
                             if mode_rmse:
                                 if not labelL.iloc[id]['name'] in result_rmse:
                                     result_rmse[labelL.iloc[id]['name']] = list()
-                                result_rmse[labelL.iloc[id]['name']].append(distance)
+                                result_rmse[labelL.iloc[id]['name']].append(round(distance, dataConfig['rmse']['distRound']))
                         else:
                             resultImgL, resultImgR = errorDetection("Class Left & Right is not same!", resized1, resized2)
                             break
