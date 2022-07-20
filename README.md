@@ -16,7 +16,7 @@ cd unfold
 pip install -r requirements.txt
 ```
 
-Rename `changeData_example.json` into `changeData.json` and edit the config.
+Rename `config.yaml.example` into `config.yaml` and edit the camera & detection config.
 
 ```
 python main.py
