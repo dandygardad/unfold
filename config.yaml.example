@@ -43,6 +43,13 @@ cameraConfig:
 
 
 
+# Distance Configuration
+distanceConfig:
+  min: 1   # Too close
+  max: 100   # Too far
+
+
+
 # Root mean squared error configuration
 # Used for compile_rmse.py
 rmse:

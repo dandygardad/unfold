@@ -199,6 +199,7 @@ while True:
 
                             # Result from Distance Measurement
                             distance = stereoscopicMeasurement(xl, xr, dim[0], dataConfig['cameraConfig']['baseline'], dataConfig['cameraConfig']['fieldOfView'])
+                            
                             classes.append(labelL.iloc[id]['name'])
                             distances.append(distance)
 
