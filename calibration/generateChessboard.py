@@ -8,6 +8,9 @@ import time
 
 print("\n== TAKE CHESSBOARD PICTURES FOR CALIBRATION ==\n``unfold`` by dandy garda\n")
 
+# Input for how many times to take
+totalShot = input("Masukkan berapa kali ambil gambar: ")
+
 # Input Camera
 cam1 = input("Masukkan nomor source left camera (1/2/3/..): ")
 cam2 = input("Masukkan nomor source right camera (1/2/3/..): ")
@@ -15,15 +18,15 @@ cam2 = input("Masukkan nomor source right camera (1/2/3/..): ")
 # Resized Dimension
 dim = (640, 480)
 
-# For label name
+# For label name & total taken
 index = 0
 
 # Get unix timestamp for 1 session
 getTime = str(int(time.time()))
 
 # Check if input is not numeric
-if not cam1.isnumeric() & cam2.isnumeric():
-    print("Input unknown!")
+if not cam1.isnumeric() & cam2.isnumeric() & totalShot.isnumeric():
+    print("\nInput unknown!")
     quit()
 
 # Capture camera
@@ -44,23 +47,18 @@ print("\nResized to: " + str(dim))
 print("\n\nPress 's' to take a picture left and right\nPress 'q' to quit")
 
 
-
+# Left Camera
+print("\nIt's time to left camera!\n")
 while True:
     # Read webcam
-    ret1, frame1 = vid1.read()
-    ret2, frame2 = vid2.read()
-
-    # Resized input based from dimension
-    resized1 = cv2.resize(frame1, dim, interpolation=cv2.INTER_AREA)
-    resized2 = cv2.resize(frame2, dim, interpolation=cv2.INTER_AREA)
+    ret, frame = vid1.read()
 
     # If frame error then break
-    if not ret1 & ret2:
+    if not ret:
         break
 
-    cv2.imshow("Left Camera", resized1)
-    cv2.imshow("Right Camera", resized2)
-
+    cv2.imshow("Left Camera", frame)
+    
     key = cv2.waitKey(1)
 
     # Take a pictuh with key 's'
@@ -68,26 +66,75 @@ while True:
         # Make folder for storing images if not exists
         if not os.path.exists(os.getcwd() + '\\calibration\\images\\'):
             os.makedirs(os.getcwd() + '\\calibration\\images\\')
-
+        
         # Make folder based from unix
         if not os.path.exists(os.getcwd() + '\\calibration\\images\\' + getTime):
             os.makedirs(os.getcwd() + '\\calibration\\images\\' + getTime + '\\left\\')
             os.makedirs(os.getcwd() + '\\calibration\\images\\' + getTime + '\\right\\')
 
-        # Left Camera
-        cv2.imwrite(os.getcwd() + '\\calibration\\images\\' + getTime + '\\left\\' + str(index) + '.jpg', resized1)
-        # Right Camera
-        cv2.imwrite(os.getcwd() + '\\calibration\\images\\' + getTime + '\\right\\' + str(index) + '.jpg', resized2)
-        
+        # Save
+        cv2.imwrite(os.getcwd() + '\\calibration\\images\\' + getTime + '\\left\\' + str(index) + '.jpg', frame)
         print("Saved in " + os.getcwd() + '\\calibration\\images\\' + getTime + '\\left\\' + str(index) + '.jpg')
-        print("Saved in " + os.getcwd() + '\\calibration\\images\\' + getTime + '\\right\\' + str(index) + '.jpg')
-        
+
         index += 1
+    
+    if index == int(totalShot):
+        index = 0
+        break
+
+    # Quit button
+    if key == ord('q'):
+        vid1.release()
+        cv2.destroyAllWindows()
+        quit()
+
+
+
+vid1.release()
+cv2.destroyAllWindows()
+
+
+
+# Right Camera
+print("\n\nIt's time to Right camera!\n")
+while True:
+    # Read webcam
+    ret, frame = vid2.read()
+
+    # If frame error then break
+    if not ret:
+        break
+
+    cv2.imshow("Right Camera", frame)
+    
+    key = cv2.waitKey(1)
+
+    # Take a pictuh with key 's'
+    if key == ord('s'):
+        # Make folder for storing images if not exists
+        if not os.path.exists(os.getcwd() + '\\calibration\\images\\'):
+            os.makedirs(os.getcwd() + '\\calibration\\images\\')
+        
+        # Make folder based from unix
+        if not os.path.exists(os.getcwd() + '\\calibration\\images\\' + getTime):
+            os.makedirs(os.getcwd() + '\\calibration\\images\\' + getTime + '\\left\\')
+            os.makedirs(os.getcwd() + '\\calibration\\images\\' + getTime + '\\right\\')
+
+        # Save
+        cv2.imwrite(os.getcwd() + '\\calibration\\images\\' + getTime + '\\right\\' + str(index) + '.jpg', frame)
+        print("Saved in " + os.getcwd() + '\\calibration\\images\\' + getTime + '\\right\\' + str(index) + '.jpg')
+
+        index += 1
+    
+    if index == int(totalShot):
+        index = 0
+        break
 
     # Quit button
     if key == ord('q'):
         break
 
-vid1.release()
 vid2.release()
 cv2.destroyAllWindows()
+
+print("Done, semoga berhasil!")
