@@ -99,20 +99,21 @@ def cameraCalibration(pathLeft, pathRight, squareSize, chessWidth=9, chessHeight
     retL, cameraMatrixL, distL, rvecsL, tvecsL = cv2.calibrateCamera(objpoints, imgpointsL, dim, None, None)
     print("RMSE Left Camera: " + str(retL))
 
-    # Get field of view and focal length
-    # manualFov(cameraMatrixL, dim)
-    matrixValues(cameraMatrixL, dim)
     heightL, widthL, channelsL = imgL.shape
     newCameraMatrixL, roi_L = cv2.getOptimalNewCameraMatrix(cameraMatrixL, distL, (widthL, heightL), 1, (widthL, heightL))
-
-    retR, cameraMatrixR, distR, rvecsR, tvecsR = cv2.calibrateCamera(objpoints, imgpointsR, dim, None, None)
-    print("\nRMSE Right Camera: " + str(retR))
-    matrixValues(cameraMatrixR, dim)
     
     # Get field of view and focal length
+    # manualFov(cameraMatrixL, dim)
+    # matrixValues(newCameraMatrixL, dim)
+
+    retR, cameraMatrixR, distR, rvecsR, tvecsR = cv2.calibrateCamera(objpoints, imgpointsR, dim, None, None)
+    
+    print("\nRMSE Right Camera: " + str(retR))
     heightR, widthR, channelsR = imgR.shape
     newCameraMatrixR, roi_R = cv2.getOptimalNewCameraMatrix(cameraMatrixR, distR, (widthR, heightR), 1, (widthR, heightR))
 
+    # Get field of view and focal length
+    # matrixValues(newCameraMatrixR, dim)
 
 
     # STEREO VISION CALIBRATION
@@ -125,7 +126,12 @@ def cameraCalibration(pathLeft, pathRight, squareSize, chessWidth=9, chessHeight
 
     # This step is performed to transformation between two cameras and calculate Essential
     retStereo, newCameraMatrixL, distL, newCameraMatrixR, distR, rot, trans, essentialMatrix, fundamentalMatrix = cv2.stereoCalibrate(objpoints, imgpointsL, imgpointsR, newCameraMatrixL, distL, newCameraMatrixR, distR, grayL.shape[::-1], criteria_stereo, flags)
+
+
     print("\n\nRMSE stereo: " + str(retStereo))
+    matrixValues(newCameraMatrixL, dim)
+    print('\n')
+    matrixValues(newCameraMatrixR, dim)
     
 
     # STEREO RECTIFICATION
