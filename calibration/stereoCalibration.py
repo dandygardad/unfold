@@ -89,7 +89,7 @@ def cameraCalibration(pathLeft, pathRight, squareSize, chessWidth=9, chessHeight
             cv2.drawChessboardCorners(imgR, (chessWidth, chessHeight), cornersR, retR)
             cv2.imshow('Image Right', imgR)
 
-            cv2.waitKey(1000)
+            cv2.waitKey(100)
 
     cv2.destroyAllWindows()
 
@@ -125,13 +125,13 @@ def cameraCalibration(pathLeft, pathRight, squareSize, chessWidth=9, chessHeight
 
     # This step is performed to transformation between two cameras and calculate Essential
     retStereo, newCameraMatrixL, distL, newCameraMatrixR, distR, rot, trans, essentialMatrix, fundamentalMatrix = cv2.stereoCalibrate(objpoints, imgpointsL, imgpointsR, newCameraMatrixL, distL, newCameraMatrixR, distR, grayL.shape[::-1], criteria_stereo, flags)
-
+    print("\n\nRMSE stereo: " + str(retStereo))
     
 
     # STEREO RECTIFICATION
     rectifyScale = 1
     
-    rectL, rectR, projMatrixL, projMatrixR, Q, roi_L, roi_R = cv2.stereoRectify(newCameraMatrixL, distL, newCameraMatrixR, distR, grayL.shape[::-1], rot, trans, rectifyScale, (0,0))
+    rectL, rectR, projMatrixL, projMatrixR, Q, roi_L, roi_R = cv2.stereoRectify(newCameraMatrixL, distL, newCameraMatrixR, distR, grayL.shape[::-1], rot, trans, flags=cv2.CALIB_ZERO_DISPARITY, alpha=-1)
 
     stereoMapL = cv2.initUndistortRectifyMap(newCameraMatrixL, distL, rectL, projMatrixL, grayL.shape[::-1], cv2.CV_16SC2)
     stereoMapR = cv2.initUndistortRectifyMap(newCameraMatrixL, distR, rectR, projMatrixR, grayR.shape[::-1], cv2.CV_16SC2)
