@@ -67,8 +67,8 @@ def cameraCalibration(pathLeft, pathRight, squareSize, chessWidth=9, chessHeight
         grayR = cv2.cvtColor(imgR, cv2.COLOR_BGR2GRAY)
 
         # Find the chess board corners
-        retL, cornersL = cv2.findChessboardCorners(grayL, (chessWidth, chessHeight), None)
-        retR, cornersR = cv2.findChessboardCorners(grayR, (chessWidth, chessHeight), None)
+        retL, cornersL = cv2.findChessboardCorners(grayL, (chessWidth, chessHeight), cv2.CALIB_CB_ADAPTIVE_THRESH | cv2.CALIB_CB_FILTER_QUADS)
+        retR, cornersR = cv2.findChessboardCorners(grayR, (chessWidth, chessHeight), cv2.CALIB_CB_ADAPTIVE_THRESH | cv2.CALIB_CB_FILTER_QUADS)
 
         # If found, add object points, image points (after refining them)
         if retL & retR == True:
@@ -89,7 +89,7 @@ def cameraCalibration(pathLeft, pathRight, squareSize, chessWidth=9, chessHeight
             cv2.drawChessboardCorners(imgR, (chessWidth, chessHeight), cornersR, retR)
             cv2.imshow('Image Right', imgR)
 
-            cv2.waitKey(1000)
+            cv2.waitKey(50)
 
     cv2.destroyAllWindows()
 
@@ -100,10 +100,11 @@ def cameraCalibration(pathLeft, pathRight, squareSize, chessWidth=9, chessHeight
     print("RMSE Left Camera: " + str(retL))
 
     # Get field of view and focal length
-    manualFov(cameraMatrixL, dim)
     # matrixValues(cameraMatrixL, dim)
     heightL, widthL, channelsL = imgL.shape
     newCameraMatrixL, roi_L = cv2.getOptimalNewCameraMatrix(cameraMatrixL, distL, (widthL, heightL), 1, (widthL, heightL))
+    # manualFov(cameraMatrixL, dim)
+    manualFov(newCameraMatrixL, dim)
 
     retR, cameraMatrixR, distR, rvecsR, tvecsR = cv2.calibrateCamera(objpoints, imgpointsR, dim, None, None)
     print("\nRMSE Right Camera: " + str(retR))
@@ -117,6 +118,16 @@ def cameraCalibration(pathLeft, pathRight, squareSize, chessWidth=9, chessHeight
     # STEREO VISION CALIBRATION
     flags = 0
     flags |= cv2.CALIB_FIX_INTRINSIC
+    # flags |= cv2.CALIB_FIX_PRINCIPAL_POINT
+    # flags |= cv2.CALIB_USE_INTRINSIC_GUESS
+    # flags |= cv2.CALIB_FIX_FOCAL_LENGTH
+    # flags |= cv2.CALIB_FIX_ASPECT_RATIO
+    #flags |= cv2.CALIB_ZERO_TANGENT_DIST
+    #flags |= cv2.CALIB_RATIONAL_MODEL
+    # flags |= cv2.CALIB_SAME_FOCAL_LENGTH
+    #flags |= cv2.CALIB_FIX_K3
+    #flags |= cv2.CALIB_FIX_K4
+    #flags |= cv2.CALIB_FIX_K5
     # Here we fix the intrinsic camera matrixes so that only Rot, Trns, Emat, Fmat are calculated
     # Hence intrinsic parameters are the same
 
