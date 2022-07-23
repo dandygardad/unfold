@@ -179,6 +179,10 @@ while True:
         if len(labelL) and len(labelR):
             labelR = labelR.sort_values(by=['confidence'], ascending=False)  
             if len(labelL) == len(labelR):
+
+                for i in range(len(labelL)):
+                    labelL.at[i, 'name'] = labelL.iloc[i]['name'] + str(i)
+                    labelR.at[i, 'name'] = labelR.iloc[i]['name'] + str(i)
                 
                 print("\nDetection on Left Camera: ")
                 print(labelL)
