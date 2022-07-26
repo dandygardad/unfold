@@ -104,7 +104,6 @@ def cameraCalibration(pathLeft, pathRight, squareSize, chessWidth=9, chessHeight
     heightL, widthL, channelsL = imgL.shape
     newCameraMatrixL, roi_L = cv2.getOptimalNewCameraMatrix(cameraMatrixL, distL, (widthL, heightL), 1, (widthL, heightL))
 
-
     retR, cameraMatrixR, distR, rvecsR, tvecsR = cv2.calibrateCamera(objpoints, imgpointsR, dim, None, None)
     
     print("\nRMSE Right Camera: " + str(retR))
@@ -133,9 +132,9 @@ def cameraCalibration(pathLeft, pathRight, squareSize, chessWidth=9, chessHeight
     retStereo, newCameraMatrixL, distL, newCameraMatrixR, distR, rot, trans, essentialMatrix, fundamentalMatrix = cv2.stereoCalibrate(objpoints, imgpointsL, imgpointsR, newCameraMatrixL, distL, newCameraMatrixR, distR, grayL.shape[::-1], criteria_stereo, flags)
 
 
-    print("\n\nRMSE stereo: " + str(retStereo))
+    print("\n\nRMSE stereo: " + str(retStereo) + '\n')
     matrixValues(newCameraMatrixL, dim)
-    print('\n')
+    print()
     matrixValues(newCameraMatrixR, dim)
     
 
