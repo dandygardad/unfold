@@ -3,14 +3,28 @@
 
 import math
 import cv2
+import yaml
 from helper.general import errorMessage
+
+
+
+# Import config
+config = yaml.safe_load(open('./config.yaml'))
+
 
 # Create manual bbox label and distance
 def bboxLabelDistance(dataBbox, data, frame):
     i = 0
     while i < len(data):
         label = data.iloc[i]['class']
-        distance = str(round(data.iloc[i]['distance'], 2))
+        distance = round(data.iloc[i]['distance'], 2)
+
+        if distance < config['distanceConfig']['min']:
+            distance = 'Too close!'
+        elif distance > config['distanceConfig']['max']:
+            distance = 'Too far!'
+        else:
+            distance = str(distance)
         
         xmin = int(dataBbox.iloc[i]['xmin'])
         ymin = int(dataBbox.iloc[i]['ymin'])
@@ -22,7 +36,7 @@ def bboxLabelDistance(dataBbox, data, frame):
 
         resultImg = cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
         resultImg = cv2.rectangle(frame, (xmin, ymin), (xmin + text_w, ymin - text_h), (0, 0, 0), -1)
-        resultImg = cv2.putText(frame, label + ' ' + distance, (xmin, ymin-5), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 1, cv2.LINE_AA)
+        resultImg = cv2.putText(frame, label + ': ' + distance, (xmin, ymin-5), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 1, cv2.LINE_AA)
         i += 1
 
     return resultImg
@@ -53,10 +67,14 @@ def stereoscopicMeasurement(leftX, rightX, width, b, fov):
     baselineWidth = float(b) * float(width)
     disparity = abs(float(leftX) - float(rightX))
     fieldOfView = float(math.tan(math.radians(fov / 2)))
+
+    print("\nBaseline x width: " + str(baselineWidth))
+    print("Disparity: " + str(disparity))
+    print("Field of View: " + str(fieldOfView))
     
     try:
         distance = baselineWidth / ((2 * fieldOfView) * disparity)
     except ZeroDivisionError:
-        errorMessage("Field Of View/Baseline tidak bisa dibagi 0")
+        distance = 0
         
     return distance

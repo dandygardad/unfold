@@ -16,7 +16,7 @@ cd unfold
 pip install -r requirements.txt
 ```
 
-Rename `changeData_example.json` into `changeData.json` and edit the config.
+Rename `config.yaml.example` into `config.yaml` and edit the camera & detection config.
 
 ```
 python main.py
@@ -25,7 +25,7 @@ python main.py
 ## Features
 - Live/Video source input
 - Camera Calibration & Rectify
-- Detect with Stereo YOLOv5 (Mini-version)
+- Detect with Stereo YOLOv5 (Mini-version) & Template Matching
 - Distance Measurement
 - Root Mean Squared Error
 

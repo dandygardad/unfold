@@ -5,7 +5,7 @@
 import pandas as pd
 import cv2
 import torch
-import json
+import yaml
 import os
 
 from helper.general import unfoldHeader, errorMessage, errorDetection
@@ -19,32 +19,32 @@ from helper.rmse import saveData
 
 
 
-###### LOAD JSON ######
+###### LOAD YAML ######
 
-f = open('changeData.json')
-dataJson = json.load(f)
+f = open('config.yaml')
+dataConfig = yaml.safe_load(f)
 f.close()
 
 # ``unfold`` Header
-unfoldHeader(dataJson['header']['cls'])
+unfoldHeader(dataConfig['header']['cls'])
 
-# Load data from json
-if dataJson['cameraConfig']['model']:
+# Load data from yaml
+if dataConfig['cameraConfig']['model']:
     # Custom model
-    model_custom = './models/' + dataJson['cameraConfig']['model']
+    model_custom = './models/' + dataConfig['cameraConfig']['model']
 else:
     # Default model by YOLOv5 (Coco128)
     model_custom = './models/' + 'yolov5s.pt'
 
-if dataJson['cameraConfig']['conf']:
-    conf_custom = dataJson['cameraConfig']['conf']
+if dataConfig['cameraConfig']['conf']:
+    conf_custom = dataConfig['cameraConfig']['conf']
 else:
     conf_custom = 0
 
-if dataJson['rmse']['mode']:
-    mode_rmse = dataJson['rmse']['mode']
-    dist_rmse = dataJson['rmse']['setDistance']
-    frame_rmse = dataJson['rmse']['maxFramesPerDist']
+if dataConfig['rmse']['mode']:
+    mode_rmse = dataConfig['rmse']['mode']
+    dist_rmse = dataConfig['rmse']['setDistance']
+    frame_rmse = dataConfig['rmse']['maxFramesPerDist']
     result_rmse = {}
     distances_rmse = list()
 
@@ -52,17 +52,17 @@ if dataJson['rmse']['mode']:
 else:
     mode_rmse = False
 
-mode_capture = dataJson['capture']['mode']
+mode_capture = dataConfig['capture']['mode']
 
-if mode_capture == 'video' and dataJson['capture']['cam1'] and dataJson['capture']['cam2']:
-    cam1_capture = dataJson['capture']['cam1']
-    cam2_capture = dataJson['capture']['cam2']
+if mode_capture == 'video' and dataConfig['capture']['cam1'] and dataConfig['capture']['cam2']:
+    cam1_capture = dataConfig['capture']['cam1']
+    cam2_capture = dataConfig['capture']['cam2']
 elif mode_capture == 'video':
     _, _ = errorMessage("Cam 1/Cam 2 source video contains false!")
     quit()
 
 
-###### END OF LOAD JSON ######
+###### END OF LOAD YAML ######
 
 
 
@@ -134,50 +134,76 @@ while True:
         # Inference Settings
         model.conf = conf_custom
 
-        if dataJson['cameraConfig']['customModel'] != False:
-            model.classes = dataJson['cameraConfig']['customModel']
+        if dataConfig['cameraConfig']['customModel'] != False:
+            model.classes = dataConfig['cameraConfig']['customModel']
             
 
         # Load frame to model
-        resultLR = model([resizedGrayL, resizedGrayR], augment=True)
+        resultLR = model([resizedGrayL], augment=True)
 
         ###### END OF STEREO CAMERA & SETTINGS ######
 
-        
+
+
+
+        ###### MATCH TEMPLATE ######
+
+        labelL = resultLR.pandas().xyxy[0] # (Left Camera)
+        labelR = pd.DataFrame({})
+
+        for i in range(len(labelL)):
+            image = resizedGrayL[int(labelL.iloc[i]['ymin']):int(labelL.iloc[i]['ymax']), int(labelL.iloc[i]['xmin']):int(labelL.iloc[i]['xmax'])]
+            height, width = image.shape[::]
+            match = cv2.matchTemplate(resizedGrayR, image, cv2.TM_SQDIFF)
+            _, _, minloc, maxloc = cv2.minMaxLoc(match)
+            data = {
+                "xmin": float(minloc[0]),
+                "ymin": float(minloc[1]),
+                "xmax": float(minloc[0] + width),
+                "ymax": float(minloc[1] + height),
+                "confidence": labelL.iloc[i]['confidence'],
+                "class": labelL.iloc[i]['class'],
+                "name": labelL.iloc[i]['name']
+            }
+            labelR = pd.concat([labelR, pd.DataFrame(data, index=[i])]) 
+            
+        ###### END OF MATCH TEMPLATE ######
+
+
 
 
         ###### PRINT INTO COMMAND PROMPT ######
 
-        labelL = resultLR.pandas().xyxy[0] # (Left Camera)
-        labelR = resultLR.pandas().xyxy[1]  # (Right Camera)
-
         print("\n--------------------------------------------")
 
         if len(labelL) and len(labelR):
+            labelR = labelR.sort_values(by=['confidence'], ascending=False)  
             if len(labelL) == len(labelR):
-                # Add index into result name
-                for i in range(len(labelR)):
+
+                for i in range(len(labelL)):
                     labelL.at[i, 'name'] = labelL.iloc[i]['name'] + str(i)
                     labelR.at[i, 'name'] = labelR.iloc[i]['name'] + str(i)
                 
                 print("\nDetection on Left Camera: ")
                 print(labelL)
-                print("\nDetection on Right Camera: ")
+                print("\nDetection on Right Camera (from template matching): ")
                 print(labelR)
 
                 id = 0
                 while id < len(labelL):
-                    xl, yl, wl, hl = convertBbox(labelL.iloc[id]['xmin'], labelL.iloc[id]['ymin'], labelL.iloc[id]['xmax'], labelL.iloc[id]['ymax'])
+                    # Converting float into int for stability value
+                    xl, yl, wl, hl = convertBbox(round(labelL.iloc[id]['xmin'], dataConfig['cameraConfig']['detectRound']), round(labelL.iloc[id]['ymin'], dataConfig['cameraConfig']['detectRound']), round(labelL.iloc[id]['xmax'], dataConfig['cameraConfig']['detectRound']), round(labelL.iloc[id]['ymax'], dataConfig['cameraConfig']['detectRound']))
                     xr, yr, wr, hr = convertBbox(labelR.iloc[id]['xmin'], labelR.iloc[id]['ymin'], labelR.iloc[id]['xmax'], labelR.iloc[id]['ymax'])
 
-                    if dataJson['cameraConfig']['blockDiffClass']:
+                    if dataConfig['cameraConfig']['blockDiffClass']:
                         # If two class from cameras are not same then break
                         if labelL.iloc[id]['name'] == labelR.iloc[id]['name']:
                             print("\n\nx1 for left camera = " + str(xl))
                             print("x2 for right camera = " + str(xr))
 
                             # Result from Distance Measurement
-                            distance = stereoscopicMeasurement(xl, xr, dim[0], dataJson['cameraConfig']['baseline'], dataJson['cameraConfig']['fieldOfView'])
+                            distance = stereoscopicMeasurement(xl, xr, dim[0], dataConfig['cameraConfig']['baseline'], dataConfig['cameraConfig']['fieldOfView'])
+                            
                             classes.append(labelL.iloc[id]['name'])
                             distances.append(distance)
 
@@ -185,7 +211,7 @@ while True:
                             if mode_rmse:
                                 if not labelL.iloc[id]['name'] in result_rmse:
                                     result_rmse[labelL.iloc[id]['name']] = list()
-                                result_rmse[labelL.iloc[id]['name']].append(distance)
+                                result_rmse[labelL.iloc[id]['name']].append(round(distance, dataConfig['rmse']['distRound']))
                         else:
                             resultImgL, resultImgR = errorDetection("Class Left & Right is not same!", resized1, resized2)
                             break
@@ -194,7 +220,7 @@ while True:
                         print("x2 for right camera = " + str(xr))
 
                         # Result from Distance Measurement
-                        distance = stereoscopicMeasurement(xl, xr, dim[0], dataJson['cameraConfig']['baseline'], dataJson['cameraConfig']['fieldOfView'])
+                        distance = stereoscopicMeasurement(xl, xr, dim[0], dataConfig['cameraConfig']['baseline'], dataConfig['cameraConfig']['fieldOfView'])
 
                         classes.append(labelL.iloc[id]['name'])
                         distances.append(distance)
@@ -234,7 +260,7 @@ while True:
 
         ###### SHOW CAMERAS IN REALTIME ######
 
-        if dataJson['cameraConfig']['combinedCamera']:
+        if dataConfig['cameraConfig']['combinedCamera']:
             # Combine two frame into one
             alpha = 0.5
             beta = (1.0 - alpha)

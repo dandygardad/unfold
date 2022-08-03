@@ -2,7 +2,7 @@
 # # for ``unfold`` by dandy garda
 
 import os
-import json
+import yaml
 import pandas as pd
 import time
 
@@ -12,11 +12,11 @@ from helper.rmse import *
 
 ##### LOAD CONFIG FROM changeData #####
 
-f = open('changeData.json')
-configJson = json.load(f)
+f = open('config.yaml')
+config = yaml.safe_load(f)
 f.close()
 
-strictClass = configJson['rmse']['strictClass']
+strictClass = config['rmse']['strictClass']
 
 #### END OF LOAD CONFIG FROM changeData #####
 
@@ -64,7 +64,7 @@ for i in range(len(f)):
 
     dict_rmse_json = list(rmse_json.keys())
 
-    # Check if there is same class (can changed at changeData.json)
+    # Check if there is same class (can changed at config.yaml)
     if strictClass:
         is_same = compareList(dict_rmse_json_one, dict_rmse_json)
         if not is_same:

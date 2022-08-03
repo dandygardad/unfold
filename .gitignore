@@ -133,6 +133,7 @@ dmypy.json
 calibration/images/*
 stereoMap.xml
 changeData.json
+config.yaml
 result-rmse
 temp_file
 video
