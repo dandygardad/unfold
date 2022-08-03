@@ -142,6 +142,7 @@ def cameraCalibration(pathLeft, pathRight, squareSize, chessWidth=9, chessHeight
     rectifyScale = 1
     
     rectL, rectR, projMatrixL, projMatrixR, Q, roi_L, roi_R = cv2.stereoRectify(newCameraMatrixL, distL, newCameraMatrixR, distR, grayL.shape[::-1], rot, trans, flags=cv2.CALIB_ZERO_DISPARITY, alpha=-1)
+    # rectL, rectR, projMatrixL, projMatrixR, Q, roi_L, roi_R = cv2.stereoRectify(newCameraMatrixL, distL, newCameraMatrixR, distR, grayL.shape[::-1], rot, trans, rectifyScale, (0,0))
 
     stereoMapL = cv2.initUndistortRectifyMap(newCameraMatrixL, distL, rectL, projMatrixL, grayL.shape[::-1], cv2.CV_16SC2)
     stereoMapR = cv2.initUndistortRectifyMap(newCameraMatrixL, distR, rectR, projMatrixR, grayR.shape[::-1], cv2.CV_16SC2)
