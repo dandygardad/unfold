@@ -91,7 +91,7 @@ def cameraCalibration(pathLeft, pathRight, squareSize, chessWidth=9, chessHeight
             cv2.drawChessboardCorners(imgR, (chessWidth, chessHeight), cornersR, retR)
             cv2.imshow('Image Right', imgR)
 
-            cv2.waitKey(100)
+            cv2.waitKey(500)
 
     cv2.destroyAllWindows()
 
