@@ -10,7 +10,7 @@ def unfoldHeader(cls):
         os.system('cls')
     else:
         print('\n')
-    print('\033[92m``unfold``\033[0m v.2.0.0-dev')
+    print('\033[92m``unfold``\033[0m v.2.0.0')
     print('\033[1mA Python project for measuring distance between two ships with Stereo Camera.\033[0m')
     print('\n\033[1mmade by Dandy Garda\033[0m')
     print('\033[1mgowa, 2022\033[0m')
