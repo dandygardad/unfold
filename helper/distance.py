@@ -75,6 +75,6 @@ def stereoscopicMeasurement(leftX, rightX, width, b, fov):
     try:
         distance = baselineWidth / ((2 * fieldOfView) * disparity)
     except ZeroDivisionError:
-        errorMessage("Field Of View/Baseline tidak bisa dibagi 0")
+        distance = 0
         
     return distance
