@@ -32,9 +32,11 @@ unfoldHeader(dataConfig['header']['cls'])
 if dataConfig['cameraConfig']['model']:
     # Custom model
     model_custom = './models/' + dataConfig['cameraConfig']['model']
+    model_coco = './models/' + 'yolov5s.pt'
 else:
     # Default model by YOLOv5 (Coco128)
     model_custom = './models/' + 'yolov5s.pt'
+    model_coco = False
 
 if dataConfig['cameraConfig']['conf']:
     conf_custom = dataConfig['cameraConfig']['conf']
@@ -96,7 +98,12 @@ dim = (widthL, heightL)
 
 print("\n\n=== RUNNING YOLOv5 ===")
 try:
-    model = torch.hub.load('yolov5-detect', 'custom', path=model_custom, source='local')
+    if not model_coco:
+        model = torch.hub.load('yolov5-detect', 'custom', path=model_custom, source='local')
+        model_load_coco = torch.hub.load('yolov5-detect', 'custom', path=model_coco, source='local')
+    else:
+        model = torch.hub.load('yolov5-detect', 'custom', path=model_custom, source='local')
+
 except Exception as e:
     print(e)
     errorMessage("Cannot load model, please check 'torch.hub.load' function!")
@@ -132,7 +139,12 @@ while True:
             break
 
         # Inference Settings
-        model.conf = conf_custom
+        if not model_coco:
+            model.conf = conf_custom
+            model_load_coco.conf = conf_custom
+        else:
+            model.conf = conf_custom
+
 
         if dataConfig['cameraConfig']['customModel'] != False:
             model.classes = dataConfig['cameraConfig']['customModel']
