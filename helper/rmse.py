@@ -27,7 +27,7 @@ def compareList(l1, l2):
 def frequencyValue(arr):
     convertRound = map(lambda x: round(x, 2), arr)
     elem_count = collections.Counter(convertRound)
-    
+
     for key, value in elem_count.most_common(1):
         return key, value
 
@@ -42,6 +42,18 @@ def measureRMSE(arr, actual_arr):
     rmse = rmse / len(arr)
 
     return math.sqrt(rmse)
+
+# Not deleted, might be used in the future
+# def measureRMSEOne(dist, actual_arr):
+#     rmse = 0
+
+#     for i in range(len(actual_arr)):
+#         subsActForc = (float(actual_arr[i]) - float(dist))
+#         rmse = rmse + (math.pow((subsActForc), 2))
+
+#     rmse = rmse / len(actual_arr)
+
+#     return math.sqrt(rmse)
 
 # Template error related from RMSE
 def errorMessage(msg):
